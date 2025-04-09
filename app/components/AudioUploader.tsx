@@ -3,14 +3,18 @@ import { useState } from 'react';
 
 export default function AudioUploader() {
   const [file, setFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [error, setError] = useState<string | null>(null);
 
   const handleUpload = async () => {
     if (!file) return;
-  
-    setIsUploading(true);
+    
+    setStatus('uploading');
+    setError(null);
+
     try {
-      const response = await fetch('/api/upload', {
+      // Step 1: Get pre-signed URL
+      const apiResponse = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -18,47 +22,79 @@ export default function AudioUploader() {
           filetype: file.type,
         }),
       });
-  
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to get upload URL');
+
+      if (!apiResponse.ok) {
+        throw new Error('Failed to prepare upload');
       }
-  
-      const uploadResponse = await fetch(result.url, {
+
+      const { url } = await apiResponse.json();
+
+      // Step 2: Upload to S3
+      const s3Response = await fetch(url, {
         method: 'PUT',
         body: file,
         headers: { 'Content-Type': file.type },
       });
-  
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload file to S3');
+
+      if (!s3Response.ok) {
+        throw new Error('Storage service rejected file');
       }
-  
-      alert('Upload successful!');
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsUploading(false);
+
+      setStatus('success');
+    } catch (err) {
+      setStatus('error');
+      setError(err instanceof Error ? err.message : 'Upload failed');
+      console.error('Upload error:', err);
     }
   };
 
   return (
-    <div className="p-4">
-      <input
-        type="file"
-        accept="audio/*"
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
-        disabled={isUploading}
-      />
+    <div className="space-y-4">
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+        <input
+          type="file"
+          accept="audio/*"
+          onChange={(e) => {
+            setFile(e.target.files?.[0] || null);
+            setStatus('idle');
+          }}
+          disabled={status === 'uploading'}
+          className="hidden"
+          id="audio-upload"
+        />
+        <label
+          htmlFor="audio-upload"
+          className="cursor-pointer block p-4 hover:bg-gray-50 rounded"
+        >
+          {file ? file.name : 'Select audio file'}
+        </label>
+      </div>
+
       <button
         onClick={handleUpload}
-        disabled={!file || isUploading}
-        className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+        disabled={!file || status === 'uploading'}
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isUploading ? 'Uploading...' : 'Upload Audio'}
+        {status === 'uploading' ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className="animate-spin">↻</span> Uploading...
+          </span>
+        ) : (
+          'Upload Audio'
+        )}
       </button>
+
+      {status === 'success' && (
+        <div className="p-3 bg-green-100 text-green-800 rounded">
+          Upload successful!
+        </div>
+      )}
+
+      {status === 'error' && error && (
+        <div className="p-3 bg-red-100 text-red-800 rounded">
+          Error: {error}
+        </div>
+      )}
     </div>
   );
 }
