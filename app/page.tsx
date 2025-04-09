@@ -1,6 +1,4 @@
-import Image from "next/image";
-import styles from "./page.module.css";
-import AudioUploader from '@/components/AudioUploader';
+import AudioUploader from './components/AudioUploader';
 
 export default function Home() {
   return (

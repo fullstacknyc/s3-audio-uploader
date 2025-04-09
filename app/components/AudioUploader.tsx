@@ -1,5 +1,4 @@
-"use client"; // Required for client-side interactivity
-
+'use client';
 import { useState } from 'react';
 
 export default function AudioUploader() {
@@ -11,7 +10,6 @@ export default function AudioUploader() {
 
     setIsUploading(true);
     try {
-      // Get pre-signed URL from Next.js API
       const response = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -22,16 +20,14 @@ export default function AudioUploader() {
       });
 
       const { url } = await response.json();
-
-      // Upload file directly to S3
       await fetch(url, {
         method: 'PUT',
         body: file,
         headers: { 'Content-Type': file.type },
       });
-
       alert('Upload successful!');
     } catch (error) {
+      console.error('Upload failed:', error);
       alert('Upload failed');
     } finally {
       setIsUploading(false);
