@@ -7,7 +7,7 @@ export default function AudioUploader() {
 
   const handleUpload = async () => {
     if (!file) return;
-
+  
     setIsUploading(true);
     try {
       const response = await fetch('/api/upload', {
@@ -18,17 +18,26 @@ export default function AudioUploader() {
           filetype: file.type,
         }),
       });
-
+  
+      if (!response.ok) {
+        throw new Error('Failed to get upload URL');
+      }
+  
       const { url } = await response.json();
-      await fetch(url, {
+      const uploadResponse = await fetch(url, {
         method: 'PUT',
         body: file,
         headers: { 'Content-Type': file.type },
       });
+  
+      if (!uploadResponse.ok) {
+        throw new Error('Upload failed');
+      }
+  
       alert('Upload successful!');
     } catch (error) {
-      console.error('Upload failed:', error);
-      alert('Upload failed');
+      console.error('Upload error:', error);
+      alert(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
     }
