@@ -1,5 +1,5 @@
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { FiUpload, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 
 export default function AudioUploader() {
@@ -8,26 +8,38 @@ export default function AudioUploader() {
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
 
+  // Memoize constants to prevent recreation on every render
+  const MAX_FILE_SIZE = useMemo(() => 100 * 1024 * 1024, []); // 100MB
+  const SUPPORTED_FORMATS = useMemo(() => [
+    'audio/mpeg', // MP3
+    'audio/wav',  // WAV
+    'audio/aac',  // AAC
+    'audio/x-m4a', // M4A
+    'audio/ogg'   // OGG
+  ], []);
+
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      // Validate file type
-      if (!selectedFile.type.startsWith('audio/')) {
-        setError('Please select an audio file');
-        return;
-      }
-      
-      // Validate file size (10MB max)
-      if (selectedFile.size > 10 * 1024 * 1024) {
-        setError('File size must be less than 10MB');
-        return;
-      }
+    if (!selectedFile) return;
 
-      setFile(selectedFile);
-      setStatus('idle');
-      setError(null);
+    // Reset previous state
+    setError(null);
+    setStatus('idle');
+
+    // Validate file type
+    if (!SUPPORTED_FORMATS.includes(selectedFile.type)) {
+      setError(`Unsupported format: ${selectedFile.type}. We accept MP3, WAV, AAC, M4A, OGG`);
+      return;
     }
-  }, []);
+    
+    // Validate file size (100MB max)
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      setError(`File too large (${(selectedFile.size / (1024 * 1024)).toFixed(2)}MB). Max 100MB allowed.`);
+      return;
+    }
+
+    setFile(selectedFile);
+  }, [MAX_FILE_SIZE, SUPPORTED_FORMATS]); // Added dependencies here
 
   const handleUpload = async () => {
     if (!file) return;
@@ -44,6 +56,7 @@ export default function AudioUploader() {
         body: JSON.stringify({
           filename: file.name,
           filetype: file.type,
+          filesize: file.size
         }),
       });
 
@@ -56,6 +69,7 @@ export default function AudioUploader() {
 
       // Step 2: Upload to S3 with progress tracking
       const xhr = new XMLHttpRequest();
+      
       xhr.upload.addEventListener('progress', (e) => {
         if (e.lengthComputable) {
           setProgress(Math.round((e.loaded / e.total) * 100));
@@ -63,15 +77,14 @@ export default function AudioUploader() {
       });
 
       await new Promise((resolve, reject) => {
-        xhr.onreadystatechange = () => {
-          if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-              resolve(xhr.response);
-            } else {
-              reject(new Error('Upload failed'));
-            }
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(xhr.response);
+          } else {
+            reject(new Error('Upload failed'));
           }
         };
+        xhr.onerror = () => reject(new Error('Network error'));
         xhr.open('PUT', url, true);
         xhr.setRequestHeader('Content-Type', file.type);
         xhr.send(file);
@@ -90,38 +103,38 @@ export default function AudioUploader() {
     <div className="max-w-md mx-auto space-y-4">
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700">
-          Audio File
+          Audio File (Max 100MB)
         </label>
         
         <div className="flex items-center gap-4">
           <label className="flex-1 cursor-pointer">
             <input
               type="file"
-              accept="audio/*"
+              accept={SUPPORTED_FORMATS.join(',')}
               onChange={handleFileChange}
               className="hidden"
               id="audio-upload"
             />
-            <div className="flex items-center justify-between px-4 py-2 border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
-              <span className="truncate">
-                {file ? file.name : 'Select a file...'}
+            <div className="flex items-center justify-between px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 transition-colors">
+              <span className="truncate max-w-xs">
+                {file ? file.name : 'Click to select audio...'}
               </span>
-              <FiUpload className="text-gray-500" />
+              <FiUpload className="text-gray-500 text-lg" />
             </div>
           </label>
           
           <button
             onClick={handleUpload}
             disabled={!file || status === 'uploading'}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
           >
-            Upload
+            {status === 'uploading' ? 'Uploading...' : 'Upload'}
           </button>
         </div>
         
         {file && (
-          <div className="text-xs text-gray-500">
-            {file.type} • {(file.size / 1024 / 1024).toFixed(2)} MB
+          <div className="text-sm text-gray-600">
+            {file.type.split('/')[1].toUpperCase()} • {(file.size / (1024 * 1024)).toFixed(2)}MB
           </div>
         )}
       </div>
@@ -130,32 +143,45 @@ export default function AudioUploader() {
         <div className="space-y-2">
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
-              className="bg-blue-600 h-2.5 rounded-full"
+              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="text-sm text-gray-600">
-            Uploading... {progress}%
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>Uploading...</span>
+            <span>{progress}%</span>
           </div>
         </div>
       )}
 
       {status === 'success' && (
-        <div className="p-3 flex items-center gap-2 bg-green-50 text-green-800 rounded-md">
-          <FiCheckCircle className="text-green-500" />
-          <span>Upload successful!</span>
+        <div className="p-4 flex items-center gap-3 bg-green-50 text-green-800 rounded-lg border border-green-200">
+          <FiCheckCircle className="text-green-500 text-xl flex-shrink-0" />
+          <div>
+            <p className="font-medium">Upload successful!</p>
+            <p className="text-sm">Your audio is now being processed.</p>
+          </div>
         </div>
       )}
 
       {(status === 'error' || error) && (
-        <div className="p-3 flex items-center gap-2 bg-red-50 text-red-800 rounded-md">
-          <FiAlertCircle className="text-red-500" />
-          <span>{error || 'Upload failed'}</span>
+        <div className="p-4 flex items-center gap-3 bg-red-50 text-red-800 rounded-lg border border-red-200">
+          <FiAlertCircle className="text-red-500 text-xl flex-shrink-0" />
+          <div>
+            <p className="font-medium">Upload failed</p>
+            <p className="text-sm">{error}</p>
+          </div>
         </div>
       )}
 
-      <div className="text-xs text-gray-500">
-        Supported formats: MP3, WAV, AAC (Max 10MB)
+      <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded-lg">
+        <p className="font-medium">Supported formats:</p>
+        <ul className="list-disc list-inside mt-1">
+          <li>MP3 (up to 100MB)</li>
+          <li>WAV (up to 100MB)</li>
+          <li>AAC/M4A (up to 100MB)</li>
+          <li>OGG (up to 100MB)</li>
+        </ul>
       </div>
     </div>
   );

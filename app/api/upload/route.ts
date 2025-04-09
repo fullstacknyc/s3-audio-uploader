@@ -37,8 +37,11 @@ export async function POST(req: Request) {
 
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `uploads/${Date.now()}-${filename.replace(/[^a-zA-Z0-9_.-]/g, '_')}`,
+      Key: `uploads/${Date.now()}-${filename}`,
       ContentType: filetype,
+      // Important for larger files:
+      StorageClass: 'STANDARD',
+      ACL: 'private', // or 'public-read' if needed
     });
 
     const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
