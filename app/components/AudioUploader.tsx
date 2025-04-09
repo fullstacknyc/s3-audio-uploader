@@ -1,15 +1,15 @@
 'use client';
 import { useState, useCallback, useMemo } from 'react';
-import { FiUpload, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
+import { FiUpload, FiCheckCircle, FiAlertCircle, FiCopy, FiDownload } from 'react-icons/fi';
 
 export default function AudioUploader() {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
-  // Memoize constants to prevent recreation on every render
-  const MAX_FILE_SIZE = useMemo(() => 100 * 1024 * 1024, []); // 100MB
+  const MAX_FILE_SIZE = useMemo(() => 100 * 1024 * 1024, []);
   const SUPPORTED_FORMATS = useMemo(() => [
     'audio/mpeg', // MP3
     'audio/wav',  // WAV
@@ -22,24 +22,21 @@ export default function AudioUploader() {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    // Reset previous state
     setError(null);
     setStatus('idle');
 
-    // Validate file type
     if (!SUPPORTED_FORMATS.includes(selectedFile.type)) {
       setError(`Unsupported format: ${selectedFile.type}. We accept MP3, WAV, AAC, M4A, OGG`);
       return;
     }
-    
-    // Validate file size (100MB max)
+
     if (selectedFile.size > MAX_FILE_SIZE) {
       setError(`File too large (${(selectedFile.size / (1024 * 1024)).toFixed(2)}MB). Max 100MB allowed.`);
       return;
     }
 
     setFile(selectedFile);
-  }, [MAX_FILE_SIZE, SUPPORTED_FORMATS]); // Added dependencies here
+  }, [MAX_FILE_SIZE, SUPPORTED_FORMATS]);
 
   const handleUpload = async () => {
     if (!file) return;
@@ -47,16 +44,15 @@ export default function AudioUploader() {
     setStatus('uploading');
     setError(null);
     setProgress(0);
+    setDownloadUrl(null);
 
     try {
-      // Step 1: Get pre-signed URL
       const apiResponse = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           filename: file.name,
           filetype: file.type,
-          filesize: file.size
         }),
       });
 
@@ -65,37 +61,30 @@ export default function AudioUploader() {
         throw new Error(errorData.error || 'Failed to prepare upload');
       }
 
-      const { url } = await apiResponse.json();
+      const { uploadUrl, downloadUrl } = await apiResponse.json();
+      setDownloadUrl(downloadUrl);
 
-      // Step 2: Upload to S3 with progress tracking
-      const xhr = new XMLHttpRequest();
-      
-      xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-          setProgress(Math.round((e.loaded / e.total) * 100));
-        }
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type },
       });
 
-      await new Promise((resolve, reject) => {
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            resolve(xhr.response);
-          } else {
-            reject(new Error('Upload failed'));
-          }
-        };
-        xhr.onerror = () => reject(new Error('Network error'));
-        xhr.open('PUT', url, true);
-        xhr.setRequestHeader('Content-Type', file.type);
-        xhr.send(file);
-      });
+      if (!uploadResponse.ok) {
+        throw new Error('Upload to S3 failed');
+      }
 
       setStatus('success');
-      setProgress(100);
     } catch (err) {
       setStatus('error');
       setError(err instanceof Error ? err.message : 'Upload failed');
-      console.error('Upload error:', err);
+    }
+  };
+
+  const copyToClipboard = () => {
+    if (downloadUrl) {
+      navigator.clipboard.writeText(downloadUrl);
+      alert('Download link copied to clipboard!');
     }
   };
 
@@ -154,12 +143,38 @@ export default function AudioUploader() {
         </div>
       )}
 
-      {status === 'success' && (
-        <div className="p-4 flex items-center gap-3 bg-green-50 text-green-800 rounded-lg border border-green-200">
-          <FiCheckCircle className="text-green-500 text-xl flex-shrink-0" />
-          <div>
-            <p className="font-medium">Upload successful!</p>
-            <p className="text-sm">Your audio is now being processed.</p>
+      {status === 'success' && downloadUrl && (
+        <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+          <div className="flex items-center gap-3 mb-2">
+            <FiCheckCircle className="text-green-500 text-xl" />
+            <h3 className="font-medium text-green-800">Upload Successful!</h3>
+          </div>
+          
+          <div className="mt-3">
+            <p className="text-sm text-gray-600 mb-2">Download link (expires in 7 days):</p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={downloadUrl}
+                readOnly
+                className="flex-1 px-3 py-2 text-sm border rounded-lg truncate"
+              />
+              <button
+                onClick={copyToClipboard}
+                className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg"
+                title="Copy link"
+              >
+                <FiCopy />
+              </button>
+              <a
+                href={downloadUrl}
+                download
+                className="p-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg"
+                title="Download now"
+              >
+                <FiDownload />
+              </a>
+            </div>
           </div>
         </div>
       )}
