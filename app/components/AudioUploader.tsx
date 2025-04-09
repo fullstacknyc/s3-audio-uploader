@@ -19,25 +19,26 @@ export default function AudioUploader() {
         }),
       });
   
+      const result = await response.json();
+      
       if (!response.ok) {
-        throw new Error('Failed to get upload URL');
+        throw new Error(result.error || 'Failed to get upload URL');
       }
   
-      const { url } = await response.json();
-      const uploadResponse = await fetch(url, {
+      const uploadResponse = await fetch(result.url, {
         method: 'PUT',
         body: file,
         headers: { 'Content-Type': file.type },
       });
   
       if (!uploadResponse.ok) {
-        throw new Error('Upload failed');
+        throw new Error('Failed to upload file to S3');
       }
   
       alert('Upload successful!');
     } catch (error) {
       console.error('Upload error:', error);
-      alert(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
     }
