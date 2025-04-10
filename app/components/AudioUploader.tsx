@@ -29,7 +29,7 @@ export default function AudioUploader() {
 
   const handleUpload = async () => {
     if (!file) return;
-    
+
     setStatus('uploading');
     try {
       const res = await fetch('/api/upload', {
@@ -37,7 +37,7 @@ export default function AudioUploader() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filename: file.name, filetype: file.type }),
       });
-      
+
       const { uploadUrl, downloadUrl } = await res.json();
       setDownloadUrl(downloadUrl);
 
@@ -54,13 +54,24 @@ export default function AudioUploader() {
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700">Audio File (Max 100MB)</label>
         <div className="flex items-center gap-4">
-          <label className="flex-1 cursor-pointer">
-            <input type="file" accept={FORMATS.join(',')} onChange={handleFileChange} className="hidden" />
-            <div className="flex items-center justify-between px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 transition-colors">
-              <span className="truncate max-w-xs">{file?.name || 'Click to select audio...'}</span>
+          <div className="flex-1 relative">
+            <input
+              type="file"
+              accept={FORMATS.join(',')}
+              onChange={handleFileChange}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              id="audio-upload"
+            />
+            <div className="flex items-center justify-end px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 transition-colors">
+              {file && (
+                <span className="truncate max-w-xs mr-auto">
+                  {file.name}
+                </span>
+              )}
               <FiUpload className="text-gray-500 text-lg" />
             </div>
-          </label>
+          </div>
+
           <button
             onClick={handleUpload}
             disabled={!file || status === 'uploading'}
