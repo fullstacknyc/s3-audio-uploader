@@ -8,8 +8,6 @@ export default function Home() {
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>AudioCloud</h1>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2330891452848767"
-     crossOrigin="anonymous"></script>
         <p className={styles.subtitle}>Secure, high-quality audio storage</p>
       </header>
 
