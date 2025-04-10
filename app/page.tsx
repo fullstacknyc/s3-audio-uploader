@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect } from 'react';
 import AudioUploader from './components/AudioUploader';
 import { FiGithub, FiLinkedin, FiMail } from 'react-icons/fi';
