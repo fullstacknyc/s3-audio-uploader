@@ -28,7 +28,7 @@ export default function RootLayout({
         {/* GOOGLE ADSENSE – YE WHO SEEK PROFIT, ENTER HERE */}
         <script
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client="
         ></script>
         <script
           dangerouslySetInnerHTML={{
