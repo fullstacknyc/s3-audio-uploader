@@ -3,7 +3,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { NextResponse } from 'next/server';
 
 const s3 = new S3Client({
-  region: process.env.AWS_REGION!,
+  region: process.env.AWS_REGION,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
@@ -12,13 +12,37 @@ const s3 = new S3Client({
 
 export async function POST(req: Request) {
   try {
-    const { filename, filetype } = await req.json();
-    if (!filename || !filetype) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    const { filename, filetype, filesize } = await req.json();
+    
+    // Validate input
+    if (!filename || !filetype || !filesize) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
     }
 
+    // Validate file size
+    if (filesize > 100 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: 'File size exceeds 100MB limit' },
+        { status: 400 }
+      );
+    }
+
+    // Validate file type
+    const validTypes = ['audio/mpeg', 'audio/wav', 'audio/aac', 'audio/x-m4a', 'audio/ogg'];
+    if (!validTypes.includes(filetype)) {
+      return NextResponse.json(
+        { error: 'Unsupported file type' },
+        { status: 400 }
+      );
+    }
+
+    // Generate unique S3 key
     const s3Key = `uploads/${Date.now()}-${encodeURIComponent(filename)}`;
 
+    // Generate presigned upload URL (1 hour expiry)
     const uploadUrl = await getSignedUrl(
       s3,
       new PutObjectCommand({
@@ -29,6 +53,7 @@ export async function POST(req: Request) {
       { expiresIn: 3600 }
     );
 
+    // Generate presigned download URL (7 day expiry)
     const downloadUrl = await getSignedUrl(
       s3,
       new GetObjectCommand({
@@ -42,7 +67,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('S3 Error:', error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

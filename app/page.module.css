@@ -1,100 +1,105 @@
 .container {
-  /* Divine Layout */
   display: grid;
   grid-template-rows: auto 1fr auto;
-  min-height: 100svh;
+  min-height: 100dvh;
   padding: 2rem;
-  background-color: var(--bg);
-  color: var(--text);
-  font-family: var(--font-geist-sans);
+  gap: 3rem;
 }
 
-/* Header Section - Divine Perfection */
 .header {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 2rem;
+  text-align: center;
 }
 
 .title {
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1.25;
-  color: var(--text);
-  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(to right, var(--primary), #7c3aed);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1.2;
 }
 
 .subtitle {
-  font-size: 1rem;
+  font-size: 1.125rem;
   color: var(--text-muted);
-  text-align: center;
+  max-width: 40ch;
 }
 
-/* Main Content - Divine Center */
 .main {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: 2rem;
-  width: 100%;
-  max-width: 28rem;
-  margin: 0 auto;
+  align-items: center;
 }
 
-/* Footer - Divine Humility */
+.uploaderContainer {
+  width: 100%;
+  max-width: 32rem;
+}
+
 .footer {
   display: flex;
   justify-content: center;
-  gap: 1.5rem;
   padding-top: 2rem;
-  margin-top: auto;
-  font-size: 0.875rem;
-  color: var(--text-muted);
+  border-top: 1px solid var(--border);
 }
 
-.footerLink {
+.footerContent {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  transition: color 0.2s ease;
+  gap: 1rem;
+  width: 100%;
+  max-width: 32rem;
 }
 
-/* Divine Interactions */
-@media (hover: hover) {
-  .footerLink:hover {
-    color: var(--primary);
-    text-decoration: underline;
-    text-underline-offset: 0.25rem;
+.copyright {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.socialLinks {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+
+.icon:hover {
+  color: var(--primary);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem;
+    gap: 2rem;
+  }
+  
+  .title {
+    font-size: 2rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
   }
 }
 
-/* Divine Responsiveness */
-@media (max-width: 640px) {
+@media (max-width: 480px) {
   .container {
-    padding: 1.5rem;
+    padding: 1rem;
+    gap: 1.5rem;
   }
   
   .title {
     font-size: 1.75rem;
-  }
-  
-  .subtitle {
-    font-size: 0.875rem;
-  }
-  
-  .footer {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-  }
-}
-
-/* Divine Dark Mode Adaptation */
-@media (prefers-color-scheme: dark) {
-  .footerLink img {
-    filter: invert(1);
   }
 }
