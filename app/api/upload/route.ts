@@ -13,23 +13,37 @@ const s3 = new S3Client({
 export async function POST(req: Request) {
   try {
     const { filename, filetype } = await req.json();
-    const s3Key = `uploads/${Date.now()}-${filename}`;
+    if (!filename || !filetype) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
 
-    const uploadUrl = await getSignedUrl(s3, new PutObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: s3Key,
-      ContentType: filetype,
-    }), { expiresIn: 3600 });
+    const s3Key = `uploads/${Date.now()}-${encodeURIComponent(filename)}`;
 
-    const downloadUrl = await getSignedUrl(s3, new GetObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: s3Key,
-    }), { expiresIn: 604800 });
+    const uploadUrl = await getSignedUrl(
+      s3,
+      new PutObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: s3Key,
+        ContentType: filetype,
+      }),
+      { expiresIn: 3600 }
+    );
 
-    return NextResponse.json({ uploadUrl, downloadUrl, s3Key });
+    const downloadUrl = await getSignedUrl(
+      s3,
+      new GetObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: s3Key,
+      }),
+      { expiresIn: 604800 }
+    );
 
+    return NextResponse.json({ uploadUrl, downloadUrl });
   } catch (error) {
-    console.error("Upload failed:", error);
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+    console.error('S3 Error:', error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
