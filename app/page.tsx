@@ -2,8 +2,6 @@ import AudioUploader from './components/AudioUploader';
 import { FiGithub, FiLinkedin, FiMail } from 'react-icons/fi';
 import styles from './page.module.css';
 
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2330891452848767"
-     crossOrigin="anonymous"></script>
 
 export default function Home() {
   return (
