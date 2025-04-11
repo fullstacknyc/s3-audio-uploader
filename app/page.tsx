@@ -1,22 +1,11 @@
 "use client";
 
-import { useEffect } from 'react';
 import AudioUploader from './components/AudioUploader';
 import { FiGithub, FiLinkedin, FiMail } from 'react-icons/fi';
 import styles from './page.module.css';
 
 export default function Home() {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2330891452848767';
-    script.crossOrigin = 'anonymous';
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+  
 
   return (
     <div className={styles.container}>
