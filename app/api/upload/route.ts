@@ -60,7 +60,7 @@ export async function POST(req: Request) {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: s3Key,
       }),
-      { expiresIn: 604800 }
+      { expiresIn: 604800 } // Change to 1 Day
     );
 
     return NextResponse.json({ uploadUrl, downloadUrl });
