@@ -138,8 +138,9 @@ export default function AudioUploader() {
               </button>
             </div>
             <a
-              href={downloadUrl} target="_blank" rel="noopener noreferrer"
+              href={downloadUrl}
               download
+              className="downloadButton"
             >
               <FiDownload className="downloadIcon" />
               Download Now
