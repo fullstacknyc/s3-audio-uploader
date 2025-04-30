@@ -1,5 +1,11 @@
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+
+declare global {
+  interface Window {
+    adsbygoogle: unknown[];
+  }
+}
 import { FiUpload, FiCheckCircle, FiAlertCircle, FiCopy, FiDownload } from 'react-icons/fi';
 
 const MAX_SIZE = 100 * 1024 * 1024; // 100MB
@@ -70,6 +76,12 @@ export default function AudioUploader() {
       setError(err instanceof Error ? err.message : 'Upload failed');
     }
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    }
+  }, []);
 
   return (
     <div className="uploader">
@@ -171,16 +183,17 @@ export default function AudioUploader() {
       </div>
 
       <div className="adContainer">
-        <ins
-          className="adsbygoogle"
-          style={{ display: 'block' }}
-          data-ad-client="ca-pub-XXXXXXXXXXXXXXX"
-          data-ad-slot="1234567890"
-          data-ad-format="auto"
-        ></ins>
-        <script>
-          {`(adsbygoogle = window.adsbygoogle || []).push({});`}
-        </script>
+        {typeof window !== 'undefined' && (
+          <>
+            <ins
+              style={{ display: "block" }}
+              data-ad-client="ca-pub-XXXXXXXXXXXXXXX"
+              data-ad-slot="1234567890"
+              data-ad-format="auto"
+              className="adsbygoogle"
+            ></ins>
+          </>
+        )}
       </div>
 
       <style jsx>{`

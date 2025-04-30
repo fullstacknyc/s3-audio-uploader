@@ -83,6 +83,10 @@
   text-align: center;
 }
 
+.adsbygoogle {
+  height: 280px; /* Ensure consistent height */
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 1.5rem;
