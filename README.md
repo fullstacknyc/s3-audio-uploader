@@ -20,6 +20,23 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## S3 Configuration
+
+1. Create an S3 bucket in your AWS account.
+2. Enable CORS for the bucket with the following configuration:
+   ```json
+   {
+     "CORSRules": [
+       {
+         "AllowedOrigins": ["*"],
+         "AllowedMethods": ["PUT", "POST", "GET"],
+         "AllowedHeaders": ["*"]
+       }
+     ]
+   }
+   ```
+3. Set up an API endpoint (`/api/upload`) to generate presigned URLs for uploads.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

@@ -17,6 +17,7 @@ export default function AudioUploader() {
   const [error, setError] = useState('');
   const [downloadUrl, setDownloadUrl] = useState('');
   const [isClient, setIsClient] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -75,6 +76,10 @@ export default function AudioUploader() {
     } catch (err) {
       setStatus('error');
       setError(err instanceof Error ? err.message : 'Upload failed');
+      if (retryCount < 3) {
+        setRetryCount(retryCount + 1);
+        handleUpload(); // Retry upload
+      }
     }
   };
 
@@ -162,6 +167,8 @@ export default function AudioUploader() {
           </div>
         </div>
       )}
+
+      {status === 'error' && <p className="errorMessage">{error}</p>}
 
       {error && (
         <div className="errorCard">

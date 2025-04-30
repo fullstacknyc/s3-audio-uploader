@@ -1,4 +1,3 @@
-// filepath: /Users/cam/Desktop/s3-audio-uploader/app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -34,6 +33,10 @@ export default function RootLayout({
             async
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
           ></script>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta name="description" content="Secure, high-quality audio storage" />
+          <meta name="keywords" content="audio, cloud storage, secure upload" />
+          <meta name="author" content="Camilo Gomez" />
         </Head>
         {/* Google AdSense */}
         <script
