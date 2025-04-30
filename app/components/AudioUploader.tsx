@@ -88,9 +88,8 @@ export default function AudioUploader() {
     if (typeof window !== 'undefined' && window.adsbygoogle) {
       const adElements = document.querySelectorAll('.adsbygoogle');
       adElements.forEach((adElement) => {
-        if (!adElement.hasAttribute('data-ads-initialized')) {
+        if (!adElement.hasAttribute('data-adsbygoogle-status')) {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
-          adElement.setAttribute('data-ads-initialized', 'true');
         }
       });
     }
@@ -433,7 +432,7 @@ export default function AudioUploader() {
 
         .supportedFormats {
           font-size: 0.875rem;
-          color: var(--text-muted);
+          color: var (--text-muted);
         }
 
         .formatsTitle {
