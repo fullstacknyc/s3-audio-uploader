@@ -16,6 +16,7 @@ export default function AudioUploader() {
   const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [error, setError] = useState('');
   const [downloadUrl, setDownloadUrl] = useState('');
+  const [isClient, setIsClient] = useState(false);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -78,6 +79,7 @@ export default function AudioUploader() {
   };
 
   useEffect(() => {
+    setIsClient(true);
     if (typeof window !== 'undefined') {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     }
@@ -183,16 +185,14 @@ export default function AudioUploader() {
       </div>
 
       <div className="adContainer">
-        {typeof window !== 'undefined' && (
-          <>
-            <ins
-              style={{ display: "block" }}
-              data-ad-client="ca-pub-XXXXXXXXXXXXXXX"
-              data-ad-slot="1234567890"
-              data-ad-format="auto"
-              className="adsbygoogle"
-            ></ins>
-          </>
+        {isClient && (
+          <ins
+            style={{ display: "block" }}
+            data-ad-client="ca-pub-XXXXXXXXXXXXXXX"
+            data-ad-slot="1234567890"
+            data-ad-format="auto"
+            className="adsbygoogle"
+          ></ins>
         )}
       </div>
 
