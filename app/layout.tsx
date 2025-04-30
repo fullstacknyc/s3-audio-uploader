@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import Head from 'next/head';
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,7 @@ export default function RootLayout({
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <meta name="description" content="Secure, high-quality audio storage" />
           <meta name="keywords" content="audio, cloud storage, secure upload" />
-          <meta name="author" content="Camilo Gomez" />
+          <meta name="author" content="Camilo G." />
         </Head>
         {/* Google AdSense */}
         <script
@@ -55,12 +56,23 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-JJMFNDZXLC');
+            gtag('config', 'G-XXXXXXXXXX'); // Replace with a valid ID
           `}
         </Script>
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <header>
+          <nav>
+            <ul>
+              <li><Link href="/">Home</Link></li>
+              <li><a href="/about">About</a></li>
+              <li><a href="/paid-plans">Paid Plans</a></li>
+            </ul>
+          </nav>
+        </header>
         {children}
+        <footer>
+        </footer>
       </body>
     </html>
   );
