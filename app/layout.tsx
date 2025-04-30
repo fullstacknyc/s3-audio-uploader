@@ -13,8 +13,30 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Audio Uploader",
-  description: "Upload audio files to S3",
+  title: "AudioCloud - Secure Audio Storage",
+  description: "Upload and store your audio files securely in the cloud with AudioCloud.",
+  openGraph: {
+    title: "AudioCloud - Secure Audio Storage",
+    description: "Upload and store your audio files securely in the cloud with AudioCloud.",
+    url: "https://s3-audio-uploader.vercel.app/",
+    siteName: "AudioCloud",
+    images: [
+      {
+        url: "https://yourdomain.com/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "s3-audio-uploader",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AudioCloud - Secure Audio Storage",
+    description: "Upload and store your audio files securely in the cloud with AudioCloud.",
+    images: ["https://x.com/pipboy3k"],
+  },
 };
 
 export default function RootLayout({
