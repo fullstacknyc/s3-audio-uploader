@@ -170,6 +170,19 @@ export default function AudioUploader() {
         </ul>
       </div>
 
+      <div className="adContainer">
+        <ins
+          className="adsbygoogle"
+          style={{ display: 'block' }}
+          data-ad-client="ca-pub-XXXXXXXXXXXXXXX"
+          data-ad-slot="1234567890"
+          data-ad-format="auto"
+        ></ins>
+        <script>
+          {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+        </script>
+      </div>
+
       <style jsx>{`
         .uploader {
           display: flex;
@@ -418,6 +431,10 @@ export default function AudioUploader() {
           content: '•';
           position: absolute;
           left: 0;
+        }
+
+        .adContainer {
+          margin-top: 2rem;
         }
 
         @keyframes pulse {

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
+import Head from 'next/head';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +28,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <Head>
+          <meta name="google-site-verification" content="google4585d79a345a47f8.html" />
+          <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+          ></script>
+        </Head>
         {/* Google AdSense */}
         <script
           async
