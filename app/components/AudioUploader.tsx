@@ -85,8 +85,14 @@ export default function AudioUploader() {
 
   useEffect(() => {
     setIsClient(true);
-    if (typeof window !== 'undefined') {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    if (typeof window !== 'undefined' && window.adsbygoogle) {
+      const adElements = document.querySelectorAll('.adsbygoogle');
+      adElements.forEach((adElement) => {
+        if (!adElement.hasAttribute('data-ads-initialized')) {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          adElement.setAttribute('data-ads-initialized', 'true');
+        }
+      });
     }
   }, []);
 
