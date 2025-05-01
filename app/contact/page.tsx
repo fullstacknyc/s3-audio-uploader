@@ -18,7 +18,7 @@ export default function ContactPage() {
     message: '',
   });
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -26,7 +26,7 @@ export default function ContactPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     // Validate form
@@ -64,7 +64,7 @@ export default function ContactPage() {
         <div className={styles.contactInfo}>
           <h1>Contact Us</h1>
           <p className={styles.subtitle}>
-            Have questions about AudioCloud? We're here to help! Fill out the form below or use one of our 
+            Have questions about AudioCloud? We’re here to help! Fill out the form below or use one of our 
             direct contact methods to get in touch with our team.
           </p>
           

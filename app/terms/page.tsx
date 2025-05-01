@@ -10,8 +10,8 @@ export default function TermsOfService() {
 
         <section className={styles.section}>
           <p>
-            Welcome to AudioCloud. Please read these Terms of Service ("Terms", "Terms of Service") carefully before using 
-            the AudioCloud website and services operated by AudioCloud ("us", "we", "our").
+            Welcome to AudioCloud. Please read these Terms of Service (“Terms”, “Terms of Service”) carefully before using 
+            the AudioCloud website and services operated by AudioCloud (“us”, “we”, “our”).
           </p>
           <p>
             Your access to and use of the Service is conditioned on your acceptance of and compliance with these Terms. 
@@ -44,7 +44,7 @@ export default function TermsOfService() {
           <h2>2. Content</h2>
           <p>
             Our Service allows you to upload, store, share, and otherwise make available certain information, audio files, 
-            text, or other material ("Content"). You are responsible for the Content that you upload to the Service, 
+            text, or other material (“Content”). You are responsible for the Content that you upload to the Service, 
             including its legality, reliability, and appropriateness.
           </p>
           <p>
@@ -82,7 +82,7 @@ export default function TermsOfService() {
           <p>
             If you are a copyright owner, or authorized on behalf of one, and you believe that the copyrighted work has 
             been copied in a way that constitutes copyright infringement that is taking place through the Service, you 
-            must submit your notice in writing to the attention of "Copyright Infringement" at the contact information 
+            must submit your notice in writing to the attention of “Copyright Infringement” at the contact information 
             provided below and include the following information:
           </p>
           <ul>
@@ -104,7 +104,7 @@ export default function TermsOfService() {
             </li>
             <li>
               A statement by you, made under penalty of perjury, that the above information in your notice is accurate and 
-              that you are the copyright owner or authorized to act on the copyright owner's behalf.
+              that you are the copyright owner or authorized to act on the copyright owner’s behalf.
             </li>
           </ul>
           <p>
@@ -122,8 +122,8 @@ export default function TermsOfService() {
               In any way that violates any applicable national or international law or regulation.
             </li>
             <li>
-              To transmit, or procure the sending of, any advertising or promotional material, including any "junk mail", 
-              "chain letter," "spam," or any other similar solicitation.
+              To transmit, or procure the sending of, any advertising or promotional material, including any “junk mail”, 
+              “chain letter”, “spam” or any other similar solicitation.
             </li>
             <li>
               To impersonate or attempt to impersonate the Company, a Company employee, another user, or any other person or entity.
@@ -132,7 +132,7 @@ export default function TermsOfService() {
               In any way that infringes upon the rights of others, or in any way is illegal, threatening, fraudulent, or harmful.
             </li>
             <li>
-              To engage in any other conduct that restricts or inhibits anyone's use or enjoyment of the Service, or which, 
+              To engage in any other conduct that restricts or inhibits anyone’s use or enjoyment of the Service, or which, 
               as determined by us, may harm or offend the Company or users of the Service or expose them to liability.
             </li>
           </ul>
@@ -142,7 +142,7 @@ export default function TermsOfService() {
           <ul>
             <li>
               Use the Service in any manner that could disable, overburden, damage, or impair the Service or interfere with 
-              any other party's use of the Service.
+              any other party’s use of the Service.
             </li>
             <li>
               Use any robot, spider, or other automatic device, process, or means to access the Service for any purpose, 
@@ -223,7 +223,7 @@ export default function TermsOfService() {
         <section className={styles.section}>
           <h2>7. Disclaimer</h2>
           <p>
-            Your use of the Service is at your sole risk. The Service is provided on an "AS IS" and "AS AVAILABLE" basis. 
+            Your use of the Service is at your sole risk. The Service is provided on an “AS IS” and “AS AVAILABLE” basis. 
             The Service is provided without warranties of any kind, whether express or implied, including, but not limited to, 
             implied warranties of merchantability, fitness for a particular purpose, non-infringement, or course of performance.
           </p>
@@ -289,7 +289,7 @@ export default function TermsOfService() {
           <h2>11. Changes to Terms</h2>
           <p>
             We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is 
-            material, we will try to provide at least 30 days' notice prior to any new terms taking effect. What constitutes 
+            material, we will try to provide at least 30 days’ notice prior to any new terms taking effect. What constitutes 
             a material change will be determined at our sole discretion.
           </p>
           <p>

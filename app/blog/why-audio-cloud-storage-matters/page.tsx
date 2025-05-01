@@ -25,7 +25,7 @@ export default function AudioCloudStorageBlog() {
 
         <div className={styles.postBody}>
           <p>
-            In today's digital landscape, musicians, podcasters, and audio professionals produce vast amounts of content. 
+            In today’s digital landscape, musicians, podcasters, and audio professionals produce vast amounts of content. 
             From high-resolution master recordings to experimental tracks and podcast episodes, the demand for reliable 
             audio storage solutions has never been greater. This article explores why cloud storage specifically designed 
             for audio is becoming essential in 2025.
@@ -99,7 +99,7 @@ export default function AudioCloudStorageBlog() {
             essential for anyone serious about audio production.
           </p>
           <p>
-            Whether you're an independent musician, podcast producer, or a major studio, investing in dedicated audio 
+            Whether you’re an independent musician, podcast producer, or a major studio, investing in dedicated audio 
             cloud storage provides peace of mind while enhancing your creative workflow and protecting your valuable content.
           </p>
         </div>

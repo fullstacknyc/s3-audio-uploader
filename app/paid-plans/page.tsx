@@ -197,9 +197,9 @@ const PlansPage = () => {
                 exceed my storage limit?
               </h3>
               <p>
-                You'll receive notifications when you're approaching your
-                storage limit. If you exceed your limit, you'll still have
-                access to your existing files but won't be able to upload new
+                You’ll receive notifications when you’re approaching your
+                storage limit. If you exceed your limit, you’ll still have
+                access to your existing files but won’t be able to upload new
                 content until you either upgrade your plan or free up some
                 space.
               </p>
@@ -211,7 +211,7 @@ const PlansPage = () => {
               </h3>
               <p>
                 Yes, you can change your subscription at any time. When
-                upgrading, you'll immediately gain access to additional
+                upgrading, you’ll immediately gain access to additional
                 features. When downgrading, the changes will take effect at the
                 end of your current billing cycle.
               </p>
@@ -248,9 +248,9 @@ const PlansPage = () => {
           <div className={styles.testimonialGrid}>
             <div className={styles.testimonialCard}>
               <p>
-                "AudioCloud has transformed how I store and share my music with
+                “AudioCloud has transformed how I store and share my music with
                 collaborators. The security features give me peace of mind that
-                my unreleased tracks are safe."
+                my unreleased tracks are safe.”
               </p>
               <div className={styles.testimonialAuthor}>
                 <strong>Sarah K.</strong>
@@ -259,9 +259,9 @@ const PlansPage = () => {
             </div>
             <div className={styles.testimonialCard}>
               <p>
-                "The organization features and version control have saved me
+                “The organization features and version control have saved me
                 countless hours in the studio. I can easily track different
-                mixes and find exactly what I need."
+                mixes and find exactly what I need.”
               </p>
               <div className={styles.testimonialAuthor}>
                 <strong>Mark J.</strong>
@@ -270,9 +270,9 @@ const PlansPage = () => {
             </div>
             <div className={styles.testimonialCard}>
               <p>
-                "As a music teacher, I needed a secure way to share practice
-                tracks with students. AudioCloud's sharing features are perfect
-                for our needs."
+                “As a music teacher, I needed a secure way to share practice
+                tracks with students. AudioCloud’s sharing features are perfect
+                for our needs.”
               </p>
               <div className={styles.testimonialAuthor}>
                 <strong>Rachel T.</strong>

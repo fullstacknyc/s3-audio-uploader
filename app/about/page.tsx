@@ -31,7 +31,7 @@ export default function About() {
               </p>
               <p>
                 As musicians ourselves, we understood the unique needs of audio professionals. General cloud storage 
-                services often compress audio files, don't support professional audio formats, or make it difficult 
+                services often compress audio files, don’t support professional audio formats, or make it difficult 
                 to share large files with collaborators.
               </p>
               <p>
@@ -87,7 +87,7 @@ export default function About() {
               </div>
               <h3>Reliability</h3>
               <p>
-                Your files should be available whenever you need them. We've built our infrastructure 
+                Your files should be available whenever you need them. We’ve built our infrastructure 
                 on AWS S3 technology to ensure 99.99% uptime and redundant storage across multiple locations.
               </p>
             </div>

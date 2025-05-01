@@ -193,13 +193,13 @@ export default function PrivacyPolicy() {
         <section className={styles.section}>
           <h2>Third-Party Privacy Policies</h2>
           <p>
-            AudioCloud's Privacy Policy does not apply to other advertisers or websites. Thus, we are advising you to consult 
+            AudioCloud’s Privacy Policy does not apply to other advertisers or websites. Thus, we are advising you to consult 
             the respective Privacy Policies of these third-party ad servers for more detailed information. It may include their 
             practices and instructions about how to opt-out of certain options.
           </p>
           <p>
             You can choose to disable cookies through your individual browser options. More detailed information about 
-            cookie management with specific web browsers can be found at the browsers' respective websites.
+            cookie management with specific web browsers can be found at the browsers’ respective websites.
           </p>
         </section>
 
@@ -238,7 +238,7 @@ export default function PrivacyPolicy() {
         <section className={styles.section}>
           <h2>California Privacy Rights</h2>
           <p>
-            California Civil Code Section 1798.83, also known as the "Shine The Light" law, permits our users who are California 
+            California Civil Code Section 1798.83, also known as the “Shine The Light” law, permits our users who are California 
             residents to request and obtain from us, once a year and free of charge, information about categories of personal 
             information (if any) we disclosed to third parties for direct marketing purposes and the names and addresses of all 
             third parties with which we shared personal information in the immediately preceding calendar year. If you are a 
@@ -258,7 +258,7 @@ export default function PrivacyPolicy() {
           <h2>Changes to This Privacy Policy</h2>
           <p>
             We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new 
-            Privacy Policy on this page and updating the "Last Updated" date at the top of this page. You are advised to 
+            Privacy Policy on this page and updating the “Last Updated” date at the top of this page. You are advised to 
             review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when 
             they are posted on this page.
           </p>
