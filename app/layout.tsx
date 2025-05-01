@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
-import Head from 'next/head';
-import Link from "next/link";
+import Head from "next/head";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,8 +17,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AudioCloud - Secure Audio Storage",
-  description: "Upload and store your audio files securely in the cloud with AudioCloud.",
+  title: "AudioCloud - Secure Audio Storage for Musicians",
+  description:
+    "Upload, store, and share your audio files securely with AudioCloud. The perfect cloud storage solution for musicians, producers, and audio professionals.",
+  keywords:
+    "audio storage, secure cloud storage, music files, audio sharing, musician tools",
 };
 
 export default function RootLayout({
@@ -29,14 +33,18 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <Head>
-          <meta name="google-site-verification" content="google4585d79a345a47f8.html" />
+          <meta
+            name="google-site-verification"
+            content="google4585d79a345a47f8.html"
+          />
           <script
             async
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
           ></script>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <meta name="description" content="Secure, high-quality audio storage" />
-          <meta name="keywords" content="audio, cloud storage, secure upload" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          />
           <meta name="author" content="Camilo G." />
         </Head>
         {/* Google AdSense */}
@@ -61,18 +69,9 @@ export default function RootLayout({
         </Script>
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <header>
-          <nav>
-            <ul>
-              <li><Link href="/">Home</Link></li>
-              <li><a href="/about">About</a></li>
-              <li><a href="/paid-plans">Paid Plans</a></li>
-            </ul>
-          </nav>
-        </header>
+        <Navbar />
         {children}
-        <footer>
-        </footer>
+        <Footer />
       </body>
     </html>
   );

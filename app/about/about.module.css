@@ -1,0 +1,308 @@
+/* app/about.module.css */
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 100vh;
+  }
+  
+  /* Hero Section */
+  .hero {
+    background-color: var(--primary);
+    color: white;
+    padding: 6rem 6rem 4rem;
+    text-align: center;
+  }
+  
+  .heroContent {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .hero h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+  }
+  
+  .subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  
+  /* Sections */
+  .section {
+    padding: 5rem 6rem;
+  }
+  
+  .section:nth-child(odd) {
+    background-color: var(--bg-alt);
+  }
+  
+  .sectionContent {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .section h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+  
+  /* Story Section */
+  .storyContent {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  
+  .storyText p {
+    margin-bottom: 1.5rem;
+    line-height: 1.8;
+  }
+  
+  .storyImage {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .imagePlaceholder {
+    width: 100%;
+    max-width: 400px;
+    height: 300px;
+    background-color: rgba(59, 130, 246, 0.1);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  
+  /* Values Section */
+  .valuesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+  }
+  
+  .valueCard {
+    background-color: var(--card-bg);
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+  }
+  
+  .valueCard:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .valueIcon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: rgba(59, 130, 246, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+  }
+  
+  .valueCard h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
+  .valueCard p {
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  
+  /* Technology Section */
+  .technologyContent {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .technologyContent p {
+    margin-bottom: 1.5rem;
+    line-height: 1.8;
+  }
+  
+  .featuresList {
+    margin-left: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .featuresList li {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+  
+  /* Team Section */
+  .teamGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 3rem;
+  }
+  
+  .teamMember {
+    text-align: center;
+  }
+  
+  .memberImage {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 1.5rem;
+  }
+  
+  .memberImage .imagePlaceholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+  
+  .teamMember h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .memberTitle {
+    color: var(--primary);
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  
+  .memberBio {
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  
+  /* CTA Section */
+  .ctaSection {
+    background-color: var(--primary);
+    color: white;
+    padding: 4rem 6rem;
+    text-align: center;
+  }
+  
+  .ctaSection h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .ctaSection p {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+  }
+  
+  .ctaButtons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+  
+  .primaryButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: white;
+    color: var(--primary);
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+  }
+  
+  .primaryButton:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+  }
+  
+  .secondaryButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: transparent;
+    color: white;
+    border: 1px solid white;
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+  }
+  
+  .secondaryButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .buttonIcon {
+    margin-left: 0.25rem;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 1024px) {
+    .hero,
+    .section,
+    .ctaSection {
+      padding-left: 4rem;
+      padding-right: 4rem;
+    }
+    
+    .hero h1 {
+      font-size: 3rem;
+    }
+    
+    .section h2 {
+      font-size: 2rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .hero,
+    .section,
+    .ctaSection {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+    
+    .hero h1 {
+      font-size: 2.5rem;
+    }
+    
+    .storyContent {
+      grid-template-columns: 1fr;
+    }
+    
+    .storyImage {
+      order: -1;
+      margin-bottom: 2rem;
+    }
+    
+    .ctaButtons {
+      flex-direction: column;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    
+    .primaryButton,
+    .secondaryButton {
+      width: 100%;
+      justify-content: center;
+    }
+  }
