@@ -26,7 +26,7 @@ export default function About() {
           <div className={styles.storyContent}>
             <div className={styles.storyText}>
               <p>
-                AudioCloud was founded in 2024 by a team of musicians and software engineers who 
+                AudioCloud was founded in 2025 by a team of musicians and software engineers who 
                 were frustrated with the lack of quality cloud storage options specifically designed for audio files.
               </p>
               <p>
@@ -40,7 +40,7 @@ export default function About() {
                 platform we wished existed.
               </p>
               <p>
-                Today, AudioCloud serves thousands of musicians, podcasters, sound engineers, and audio enthusiasts 
+                Today, AudioCloud serves hundreds of musicians, podcasters, sound engineers, and audio enthusiasts 
                 who trust us with their valuable creative work. We remain committed to our original mission of providing 
                 the most secure and reliable audio storage solution in the cloud.
               </p>
@@ -157,7 +157,7 @@ export default function About() {
               <h3>Camilo Gomez</h3>
               <p className={styles.memberTitle}>Founder & CEO</p>
               <p className={styles.memberBio}>
-                Camilo is a software engineer and amateur musician with over 10 years of experience 
+                Camilo is a software engineer and amateur musician with over 4 years of experience 
                 in cloud technologies. He founded AudioCloud to solve the storage challenges he faced 
                 with his own audio projects.
               </p>
@@ -167,12 +167,11 @@ export default function About() {
                 {/* Replace with actual team member image */}
                 <div className={styles.imagePlaceholder}></div>
               </div>
-              <h3>Maria Rodriguez</h3>
+              <h3>Kevin Gomez</h3>
               <p className={styles.memberTitle}>Chief Technology Officer</p>
               <p className={styles.memberBio}>
-                Maria brings 15 years of experience in building secure and scalable cloud infrastructure. 
-                She leads our engineering team and ensures that AudioCloud meets the highest standards 
-                of security and reliability.
+                Kevin brings 10 years of experience in audio engineering and utilizes his expertise to
+                ensure that AudioCloud meets the highest standards for user quality and experience.
               </p>
             </div>
             <div className={styles.teamMember}>
@@ -180,10 +179,10 @@ export default function About() {
                 {/* Replace with actual team member image */}
                 <div className={styles.imagePlaceholder}></div>
               </div>
-              <h3>David Chen</h3>
+              <h3>Zheng ~</h3>
               <p className={styles.memberTitle}>Head of User Experience</p>
               <p className={styles.memberBio}>
-                David is a UX designer with a background in audio engineering. He ensures that AudioCloud 
+                Zheng is a UX designer with a background in software engineering. He ensures that AudioCloud 
                 provides an intuitive and seamless experience for audio professionals of all technical levels.
               </p>
             </div>
