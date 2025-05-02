@@ -75,7 +75,7 @@ export default function ContactPage() {
               </div>
               <div className={styles.contactText}>
                 <h3>Email</h3>
-                <p>support@audiocloud.com</p>
+                <p>jcgomezvale@gmail.com</p>
               </div>
             </div>
             
@@ -85,7 +85,7 @@ export default function ContactPage() {
               </div>
               <div className={styles.contactText}>
                 <h3>Phone</h3>
-                <p>+1 (555) 123-4567</p>
+                <p>+1 (551)900-3455</p>
               </div>
             </div>
             
@@ -95,7 +95,7 @@ export default function ContactPage() {
               </div>
               <div className={styles.contactText}>
                 <h3>Address</h3>
-                <p>123 Music Avenue, Suite 456<br />San Francisco, CA 94103</p>
+                <p>20 W 34th St.<br />New York, NY 10001</p>
               </div>
             </div>
           </div>
