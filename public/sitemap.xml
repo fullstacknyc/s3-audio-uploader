@@ -1,4 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<sitemap><loc>https://yourdomain.com/sitemap-0.xml</loc></sitemap>
-</sitemapindex>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/</loc>
+  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/about</loc>
+  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/blog</loc>
+  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/paid-plans</loc>
+  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/contact</loc>
+  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/terms</loc>
+  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/privacy</loc>
+  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/blog/why-audio-cloud-storage-matters</loc>
+  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/blog/secure-audio-sharing</loc>
+  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/blog/top-5-tools-for-musicians</loc>
+  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+
+
+</urlset>
