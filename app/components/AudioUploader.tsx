@@ -18,6 +18,7 @@ export default function AudioUploader() {
   const [downloadUrl, setDownloadUrl] = useState('');
   const [isClient, setIsClient] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [adCompleted, setAdCompleted] = useState(false);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -95,6 +96,13 @@ export default function AudioUploader() {
     }
   }, []);
 
+  const handleAdInteraction = () => {
+    // Simulate ad interaction completion
+    setAdCompleted(true);
+    // Track ad interaction for analytics
+    console.log('Ad interaction completed');
+  };
+
   return (
     <div className="uploader">
       <div className="fileDropzone">
@@ -142,6 +150,21 @@ export default function AudioUploader() {
             <FiCheckCircle className="successIcon" />
             <h3 className="successTitle">Upload Complete!</h3>
           </div>
+          <div className="adSection">
+            <p className="adPrompt">Please interact with the ad below to unlock your download link:</p>
+            <div className="adContainer">
+              {isClient && (
+                <ins
+                  style={{ display: "block" }}
+                  data-ad-client="ca-pub-XXXXXXXXXXXXXXX"
+                  data-ad-slot="1234567890"
+                  data-ad-format="auto"
+                  className="adsbygoogle"
+                  onClick={handleAdInteraction}
+                ></ins>
+              )}
+            </div>
+          </div>
           <div className="downloadSection">
             <p className="downloadText">Your file is ready to download:</p>
             <div className="urlContainer">
@@ -157,17 +180,18 @@ export default function AudioUploader() {
                   alert('Link copied to clipboard!');
                 }}
                 className="copyButton"
+                disabled={!adCompleted}
               >
                 <FiCopy />
               </button>
             </div>
             <a
-              href={downloadUrl}
-              download
-              className="downloadButton"
+              href={adCompleted ? downloadUrl : '#'}
+              download={adCompleted}
+              className={`downloadButton ${!adCompleted ? 'disabled' : ''}`}
             >
               <FiDownload className="downloadIcon" />
-              Download Now
+              {adCompleted ? 'Download Now' : 'Complete Ad to Download'}
             </a>
           </div>
         </div>
@@ -333,6 +357,16 @@ export default function AudioUploader() {
           color: var(--text);
         }
 
+        .adSection {
+          margin-bottom: 1rem;
+        }
+
+        .adPrompt {
+          font-size: 0.875rem;
+          color: var(--text-muted);
+          margin-bottom: 0.5rem;
+        }
+
         .downloadSection {
           display: flex;
           flex-direction: column;
@@ -372,6 +406,11 @@ export default function AudioUploader() {
           background-color: var(--border-dark);
         }
 
+        .copyButton:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
         .downloadButton {
           display: flex;
           align-items: center;
@@ -389,6 +428,11 @@ export default function AudioUploader() {
 
         .downloadButton:hover {
           background-color: color-mix(in srgb, var(--primary) 20%, transparent);
+        }
+
+        .downloadButton.disabled {
+          pointer-events: none;
+          opacity: 0.5;
         }
 
         .downloadIcon {
