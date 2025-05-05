@@ -35,7 +35,7 @@ export default function Home() {
           <div className={styles.imagePlaceholder}>
             {/* Replace with actual image */}
             <Image
-              src="/audio-wave.svg"
+              src="@public/audio-wave.gif"
               alt="Audio Waveform"
               width={400}
               height={300}
