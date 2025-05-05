@@ -35,10 +35,12 @@ export default function Home() {
           <div className={styles.imagePlaceholder}>
             {/* Replace with actual image */}
             <Image
-              src="@/public/audio-wave.gif"
+              src="/audio-wave.gif"
               alt="Audio Waveform"
+              layout="responsive"
               width={400}
               height={300}
+              priority
             />
           </div>
         </div>
