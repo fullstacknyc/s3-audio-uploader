@@ -48,7 +48,7 @@ export default function About() {
             <div className={styles.storyImage}>
               <div className={styles.imagePlaceholder}>
                 {/* Replace with actual founder image */}
-                <Image src="/team-image.jpg" alt="AudioCloud Team" width={400} height={300} />
+                <Image src="/recording-studio.jpg" alt="AudioCloud Team" width={400} height={300} />
               </div>
             </div>
           </div>
