@@ -152,7 +152,9 @@ export default function About() {
             <div className={styles.teamMember}>
               <div className={styles.memberImage}>
                 {/* Replace with actual team member image */}
-                <div className={styles.imagePlaceholder}></div>
+                <div className={styles.imagePlaceholder}>
+                  <Image src="/blankpfp.png" alt="Camilo Gomez" width={200} height={200} />
+                </div>
               </div>
               <h3>Camilo Gomez</h3>
               <p className={styles.memberTitle}>Founder & CEO</p>
@@ -165,7 +167,9 @@ export default function About() {
             <div className={styles.teamMember}>
               <div className={styles.memberImage}>
                 {/* Replace with actual team member image */}
-                <div className={styles.imagePlaceholder}></div>
+                <div className={styles.imagePlaceholder}>
+                  <Image src="/blankpfp.png" alt="Kevin Gomez" width={200} height={200} />
+                </div>
               </div>
               <h3>Kevin Gomez</h3>
               <p className={styles.memberTitle}>Chief Technology Officer</p>
@@ -177,7 +181,9 @@ export default function About() {
             <div className={styles.teamMember}>
               <div className={styles.memberImage}>
                 {/* Replace with actual team member image */}
-                <div className={styles.imagePlaceholder}></div>
+                <div className={styles.imagePlaceholder}>
+                  <Image src="/blankpfp.png" alt="Zheng Li" width={200} height={200} />
+                </div>
               </div>
               <h3>Zheng ~</h3>
               <p className={styles.memberTitle}>Head of User Experience</p>
