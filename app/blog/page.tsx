@@ -9,21 +9,21 @@ const blogPosts = [
     title: 'Why Audio Cloud Storage Matters in 2025',
     date: 'May 1, 2025',
     excerpt: 'With the increasing amount of digital audio content being created daily, secure and reliable cloud storage has become more important than ever for musicians and content creators.',
-    imageUrl: '/blog/audio-cloud-storage.jpg',
+    imageUrl: 'https://www.s3-audio-uploader.vercel.app/audio-cloud-storage.jpg',
   },
   {
     id: 'secure-audio-sharing',
     title: 'How to Store and Share High-Quality Audio Safely',
     date: 'April 28, 2025',
     excerpt: 'Sharing high-quality audio files securely is essential for professionals. Learn the best practices to keep your audio files protected while maintaining quality.',
-    imageUrl: '/blog/secure-sharing.jpg',
+    imageUrl: 'https://www.s3-audio-uploader.vercel.app/secure-sharing.jpg',
   },
   {
     id: 'top-5-tools-for-musicians',
     title: 'Top 5 Tools for Musicians to Store Their Files',
     date: 'April 22, 2025',
     excerpt: 'From cloud storage services to specialized platforms, discover the best tools available for musicians to store and organize their audio files efficiently.',
-    imageUrl: '/blog/music-tools.jpg',
+    imageUrl: 'https://www.s3-audio-uploader.vercel.app/music-tools.jpg',
   },
 ];
 

@@ -38,6 +38,7 @@ export default function Home() {
               src="/audio-wave.gif"
               alt="Audio Waveform"
               layout="responsive"
+              unoptimized={true}
               width={400}
               height={300}
               priority
