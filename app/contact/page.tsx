@@ -11,6 +11,7 @@ import {
   FiAlertCircle,
 } from "react-icons/fi";
 import ReCAPTCHA from "react-google-recaptcha";
+import emailjs from "@emailjs/browser";
 
 declare global {
   interface Window {
@@ -44,6 +45,12 @@ export default function ContactPage() {
   // Set isClient to true when the component mounts (client-side only)
   useEffect(() => {
     setIsClient(true);
+
+    // Initialize EmailJS
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+    if (publicKey) {
+      emailjs.init(publicKey);
+    }
   }, []);
 
   const validateForm = () => {
@@ -117,22 +124,34 @@ export default function ContactPage() {
     });
 
     try {
-      const response = await fetch("/api/contact", {
+      // Verify reCAPTCHA first
+      const recaptchaResponse = await fetch("/api/verify-recaptcha", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...formData,
-          recaptchaToken,
-        }),
+        body: JSON.stringify({ recaptchaToken }),
       });
 
-      const data = await response.json();
+      const recaptchaData = await recaptchaResponse.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to send message");
+      if (!recaptchaResponse.ok) {
+        throw new Error(recaptchaData.error || "reCAPTCHA verification failed");
       }
+
+      // Send email using EmailJS
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        subject: formData.subject || "Contact Form Submission",
+        message: formData.message,
+      };
+
+      await emailjs.send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || "",
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || "",
+        templateParams
+      );
 
       // Success
       setFormStatus({
@@ -157,6 +176,7 @@ export default function ContactPage() {
       }
     } catch (error) {
       // Error handling
+      console.error("EmailJS Error:", error);
       setFormStatus({
         submitted: true,
         submitting: false,

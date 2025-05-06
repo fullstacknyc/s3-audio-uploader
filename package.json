@@ -12,7 +12,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.782.0",
     "@aws-sdk/s3-request-presigner": "^3.782.0",
-    "@emailjs/nodejs": "^5.0.2",
+    "@emailjs/browser": "^4.4.1",
     "next": "15.2.5",
     "next-sitemap": "^4.2.3",
     "react": "^19.0.0",
