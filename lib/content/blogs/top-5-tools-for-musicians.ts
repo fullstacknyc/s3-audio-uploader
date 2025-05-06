@@ -7,7 +7,7 @@ const blog: Blog = {
   date: 'April 22, 2025',
   excerpt:
     "From cloud storage services to specialized platforms, discover the best tools available for musicians to store and organize their audio files efficiently.",
-  imageUrl: "/blog/music-tools.jpg",
+  imageUrl: "/music-tools.jpg",
   content: `
       <p>
         Managing your growing library of audio files is one of the biggest challenges musicians face today. 

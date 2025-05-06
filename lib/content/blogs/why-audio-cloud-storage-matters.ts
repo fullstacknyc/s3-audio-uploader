@@ -6,7 +6,7 @@ const blog: Blog = {
   title: 'Why Audio Cloud Storage Matters in 2025',
   date: 'May 1, 2025',
   excerpt: 'With the increasing amount of digital audio content being created daily, secure and reliable cloud storage has become more important than ever for musicians and content creators.',
-  imageUrl: '/blog/audio-cloud-storage.jpg',
+  imageUrl: '/audio-cloud-storage.jpg',
   content: `
       <p>
         In today's digital landscape, musicians, podcasters, and audio professionals produce vast amounts of content. 

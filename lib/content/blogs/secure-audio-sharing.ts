@@ -7,7 +7,7 @@ const blog: Blog = {
   date: 'April 28, 2025',
   excerpt:
     "Sharing high-quality audio files securely is essential for professionals. Learn the best practices to keep your audio files protected while maintaining quality.",
-  imageUrl: "/blog/secure-sharing.jpg",
+  imageUrl: "/secure-sharing.jpg",
   content: `
       <p>
         For musicians, audio engineers, and content creators, sharing high-quality audio files securely has become 

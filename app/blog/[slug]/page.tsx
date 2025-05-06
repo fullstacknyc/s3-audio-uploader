@@ -1,6 +1,7 @@
 // app/blog/[slug]/page.tsx
 import Link from "next/link";
 import { FiArrowLeft } from "react-icons/fi";
+import Image from "next/image";
 import styles from "../blog.module.css";
 import { getAllBlogSlugs, getBlogBySlug } from "@/lib/content/blogs";
 import { notFound } from "next/navigation";
@@ -77,12 +78,15 @@ export default async function BlogPostPage({
         </header>
 
         {blog.imageUrl && (
-          <div
-            className={styles.postFeaturedImage}
-            style={{ backgroundImage: `url(${blog.imageUrl})` }}
-            role="img"
-            aria-label={`Cover image for ${blog.title}`}
-          />
+          <div className={styles.postFeaturedImageContainer}>
+            <Image
+              src={blog.imageUrl}
+              alt={`Cover image for ${blog.title}`}
+              className={styles.postFeaturedImage}
+              width={800}
+              height={450}
+            />
+          </div>
         )}
 
         <div
