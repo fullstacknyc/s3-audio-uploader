@@ -1,23 +1,32 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { NextResponse } from 'next/server';
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { NextResponse } from "next/server";
 
 const s3 = new S3Client({
-  region: process.env.AWS_REGION,
+  region: process.env.AWS_REGION || "us-east-2", // Fallback to 'us-east-2' if AWS_REGION is not set
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
   },
 });
 
+// Validate AWS_REGION
+if (!process.env.AWS_REGION) {
+  console.warn('AWS_REGION is not set. Defaulting to "us-east-2".');
+}
+
 export async function POST(req: Request) {
   try {
     const { filename, filetype, filesize } = await req.json();
-    
+
     // Validate input
     if (!filename || !filetype || !filesize) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -25,16 +34,22 @@ export async function POST(req: Request) {
     // Validate file size
     if (filesize > 100 * 1024 * 1024) {
       return NextResponse.json(
-        { error: 'File size exceeds 100MB limit' },
+        { error: "File size exceeds 100MB limit" },
         { status: 400 }
       );
     }
 
     // Validate file type
-    const validTypes = ['audio/mpeg', 'audio/wav', 'audio/aac', 'audio/x-m4a', 'audio/ogg'];
+    const validTypes = [
+      "audio/mpeg",
+      "audio/wav",
+      "audio/aac",
+      "audio/x-m4a",
+      "audio/ogg",
+    ];
     if (!validTypes.includes(filetype)) {
       return NextResponse.json(
-        { error: 'Unsupported file type' },
+        { error: "Unsupported file type" },
         { status: 400 }
       );
     }
@@ -65,9 +80,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ uploadUrl, downloadUrl });
   } catch (error) {
-    console.error('S3 Error:', error);
+    console.error("S3 Error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

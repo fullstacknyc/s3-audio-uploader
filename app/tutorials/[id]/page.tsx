@@ -31,7 +31,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
   const tutorial = getTutorialById(id);
@@ -57,7 +57,7 @@ export async function generateMetadata({
 export default async function TutorialDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
   const tutorial = getTutorialById(id);

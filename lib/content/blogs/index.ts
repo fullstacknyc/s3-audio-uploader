@@ -16,6 +16,7 @@ const blogs: Blog[] = [
 // Function to get all blogs without content (for listing pages)
 export function getAllBlogs(): BlogWithoutContent[] {
   return blogs
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     .map(({ content, ...blogWithoutContent }) => blogWithoutContent)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }

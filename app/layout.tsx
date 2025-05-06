@@ -1,8 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
-import Head from "next/head";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -16,12 +15,21 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "AudioCloud - Secure Audio Storage for Musicians",
   description:
     "Upload, store, and share your audio files securely with AudioCloud. The perfect cloud storage solution for musicians, producers, and audio professionals.",
   keywords:
     "audio storage, secure cloud storage, music files, audio sharing, musician tools",
+  authors: [{ name: "Camilo G." }],
+  verification: {
+    google: "google4585d79a345a47f8.html",
+  },
 };
 
 export default function RootLayout({
@@ -31,22 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <Head>
-          <meta
-            name="google-site-verification"
-            content="google4585d79a345a47f8.html"
-          />
-          <script
-            async
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-          ></script>
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-          />
-          <meta name="author" content="Camilo G." />
-        </Head>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {/* Google AdSense */}
         <script
           async
@@ -67,8 +60,6 @@ export default function RootLayout({
             gtag('config', 'G-XXXXXXXXXX'); // Replace with a valid ID
           `}
         </Script>
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Navbar />
         {children}
         <Footer />

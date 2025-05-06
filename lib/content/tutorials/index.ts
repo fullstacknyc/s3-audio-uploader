@@ -53,6 +53,7 @@ const tutorials: Tutorial[] = [
 // Function to get all tutorials without content
 export function getAllTutorials(): TutorialWithoutContent[] {
   return tutorials.map(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ({ content, ...tutorialWithoutContent }) => tutorialWithoutContent
   );
 }
