@@ -182,13 +182,13 @@ export default function About() {
               <div className={styles.memberImage}>
                 {/* Replace with actual team member image */}
                 <div className={styles.imagePlaceholder}>
-                  <Image src="/blankpfp.png" alt="Zheng Li" width={200} height={200} />
+                  <Image src="/blankpfp.png" alt="Zhen" width={200} height={200} />
                 </div>
               </div>
-              <h3>Zheng ~</h3>
+              <h3>Zhen</h3>
               <p className={styles.memberTitle}>Head of User Experience</p>
               <p className={styles.memberBio}>
-                Zheng is a UX designer with a background in software engineering. He ensures that AudioCloud 
+                Zhen is a UX designer with a background in software engineering. He ensures that AudioCloud 
                 provides an intuitive and seamless experience for audio professionals of all technical levels.
               </p>
             </div>

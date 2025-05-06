@@ -270,7 +270,7 @@ export default function PrivacyPolicy() {
             If you have any questions about this Privacy Policy, please contact us:
           </p>
           <ul className={styles.contactInfo}>
-            <li>By email: support@audiocloud.com</li>
+            <li>By email: jgomezval@icloud.com</li>
             <li>By visiting our contact page: <a href="/contact">Contact Us</a></li>
           </ul>
         </section>

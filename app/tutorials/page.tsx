@@ -2,169 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  FiVideo,
-  FiFileText,
-  FiArrowRight,
-  FiChevronDown,
-  FiPlayCircle,
-} from "react-icons/fi";
+import { FiArrowRight, FiChevronDown, FiPlayCircle } from "react-icons/fi";
 import styles from "./tutorials.module.css";
-
-// Tutorial data - In a real app, this would come from a CMS or database
-const tutorialCategories = [
-  {
-    id: "getting-started",
-    title: "Getting Started",
-    description:
-      "Learn the basics of AudioCloud and how to get up and running quickly.",
-    icon: <FiVideo size={24} />,
-  },
-  {
-    id: "advanced-features",
-    title: "Advanced Features",
-    description:
-      "Dive deeper into AudioCloud's powerful features for audio professionals.",
-    icon: <FiVideo size={24} />,
-  },
-  {
-    id: "collaboration",
-    title: "Collaboration Tools",
-    description:
-      "Learn how to share and collaborate on audio projects with team members.",
-    icon: <FiVideo size={24} />,
-  },
-  {
-    id: "guides",
-    title: "Written Guides",
-    description: "Step-by-step guides for specific workflows and techniques.",
-    icon: <FiFileText size={24} />,
-  },
-];
-
-const tutorials = [
-  {
-    id: "uploading-first-file",
-    title: "Uploading Your First Audio File",
-    category: "getting-started",
-    duration: "3:45",
-    difficulty: "Beginner",
-    thumbnail: "/tutorials/upload-tutorial.jpg",
-    description:
-      "Learn how to quickly upload and securely store your first audio file with AudioCloud.",
-    videoId: "abc123",
-    popular: true,
-  },
-  {
-    id: "organizing-files",
-    title: "Organizing Your Audio Library",
-    category: "getting-started",
-    duration: "5:20",
-    difficulty: "Beginner",
-    thumbnail: "/tutorials/organize-tutorial.jpg",
-    description:
-      "Discover how to create folders, add tags, and keep your audio files neatly organized.",
-    videoId: "def456",
-    popular: true,
-  },
-  {
-    id: "secure-sharing",
-    title: "Secure Sharing with Collaborators",
-    category: "collaboration",
-    duration: "4:15",
-    difficulty: "Intermediate",
-    thumbnail: "/tutorials/sharing-tutorial.jpg",
-    description:
-      "Learn how to securely share your audio projects with band members, producers, and clients.",
-    videoId: "ghi789",
-    popular: true,
-  },
-  {
-    id: "version-control",
-    title: "Audio Version Control",
-    category: "advanced-features",
-    duration: "6:30",
-    difficulty: "Advanced",
-    thumbnail: "/tutorials/version-tutorial.jpg",
-    description:
-      "Master the art of tracking different versions of your audio projects with our powerful tools.",
-    videoId: "jkl012",
-    popular: false,
-  },
-  {
-    id: "metadata-management",
-    title: "Audio Metadata Management",
-    category: "advanced-features",
-    duration: "7:45",
-    difficulty: "Advanced",
-    thumbnail: "/tutorials/metadata-tutorial.jpg",
-    description:
-      "Learn how to add, edit, and leverage metadata to better organize and find your audio files.",
-    videoId: "mno345",
-    popular: false,
-  },
-  {
-    id: "collaboration-workflow",
-    title: "Setting Up a Collaboration Workflow",
-    category: "collaboration",
-    duration: "8:20",
-    difficulty: "Intermediate",
-    thumbnail: "/tutorials/workflow-tutorial.jpg",
-    description:
-      "Create an efficient workflow for collaborating with musicians and producers around the world.",
-    videoId: "pqr678",
-    popular: true,
-  },
-  {
-    id: "audio-formats",
-    title: "Understanding Audio File Formats",
-    category: "guides",
-    duration: "10:00",
-    difficulty: "Intermediate",
-    thumbnail: "/tutorials/formats-tutorial.jpg",
-    description:
-      "A comprehensive guide to audio file formats and when to use each for optimal quality and compatibility.",
-    videoId: "stu901",
-    popular: false,
-  },
-  {
-    id: "backup-strategies",
-    title: "Audio Backup Strategies",
-    category: "guides",
-    duration: "5:50",
-    difficulty: "Beginner",
-    thumbnail: "/tutorials/backup-tutorial.jpg",
-    description:
-      "Essential strategies for keeping your audio files safe with proper backup procedures.",
-    videoId: "vwx234",
-    popular: true,
-  },
-];
-
-const faqs = [
-  {
-    question: "How often are new tutorials added?",
-    answer:
-      "We add new tutorials every week, focusing on the features and workflows our users request most frequently. Be sure to subscribe to our newsletter to get notified when new content is published.",
-  },
-  {
-    question: "Are the tutorials available offline?",
-    answer:
-      "Yes, all of our written guides can be downloaded as PDFs for offline reference. Video tutorials can be accessed offline through our mobile app if you're a Pro or Studio subscription member.",
-  },
-  {
-    question: "I'm new to audio production. Where should I start?",
-    answer:
-      'We recommend beginning with our "Getting Started" series, particularly the "Uploading Your First Audio File" and "Organizing Your Audio Library" tutorials. These will give you a solid foundation before moving on to more advanced topics.',
-  },
-  {
-    question: "Can I request a tutorial on a specific topic?",
-    answer:
-      "Absolutely! We love hearing what our users want to learn. You can submit tutorial requests through our contact form or by emailing tutorials@audiocloud.com.",
-  },
-];
+import {
+  getAllTutorials,
+  getPopularTutorials,
+  tutorialCategories,
+} from "@/lib/content/tutorials";
 
 export default function TutorialsPage() {
+  const tutorials = getAllTutorials();
+  const popularTutorials = getPopularTutorials();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
@@ -173,12 +21,33 @@ export default function TutorialsPage() {
     ? tutorials.filter((tutorial) => tutorial.category === selectedCategory)
     : tutorials;
 
-  // Popular tutorials for featured section
-  const popularTutorials = tutorials.filter((tutorial) => tutorial.popular);
-
   const toggleFaq = (index: number) => {
     setExpandedFaq(expandedFaq === index ? null : index);
   };
+
+  // Sample FAQs - in a real app, these would be imported from a content file
+  const faqs = [
+    {
+      question: "How often are new tutorials added?",
+      answer:
+        "We add new tutorials every week, focusing on the features and workflows our users request most frequently. Be sure to subscribe to our newsletter to get notified when new content is published.",
+    },
+    {
+      question: "Are the tutorials available offline?",
+      answer:
+        "Yes, all of our written guides can be downloaded as PDFs for offline reference. Video tutorials can be accessed offline through our mobile app if you're a Pro or Studio subscription member.",
+    },
+    {
+      question: "I'm new to audio production. Where should I start?",
+      answer:
+        'We recommend beginning with our "Getting Started" series, particularly the "Uploading Your First Audio File" and "Organizing Your Audio Library" tutorials. These will give you a solid foundation before moving on to more advanced topics.',
+    },
+    {
+      question: "Can I request a tutorial on a specific topic?",
+      answer:
+        "Absolutely! We love hearing what our users want to learn. You can submit tutorial requests through our contact form or by emailing tutorials@audiocloud.com.",
+    },
+  ];
 
   return (
     <div className={styles.container}>
@@ -281,7 +150,7 @@ export default function TutorialsPage() {
       </section>
 
       {/* Category Sections */}
-      <section className={styles.categoryDetailsSection}>
+      {/* <section className={styles.categoryDetailsSection}>
         {tutorialCategories.map((category) => (
           <div key={category.id} className={styles.categoryDetail}>
             <div className={styles.categoryIcon}>{category.icon}</div>
@@ -291,7 +160,7 @@ export default function TutorialsPage() {
             </div>
           </div>
         ))}
-      </section>
+      </section> */}
 
       {/* FAQ Section */}
       <section className={styles.faqSection}>
@@ -325,7 +194,7 @@ export default function TutorialsPage() {
 
       {/* CTA Section */}
       <section className={styles.ctaSection}>
-        <h2>Can’t find what you’re looking for?</h2>
+        <h2>{"Can't find what you're looking for?"}</h2>
         <p>
           Our support team is ready to help you with any questions about using
           AudioCloud.

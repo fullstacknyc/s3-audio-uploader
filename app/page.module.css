@@ -112,6 +112,11 @@
   justify-content: center;
 }
 
+.imagePlaceholder img {
+  width: 100%;
+  height: auto;
+}
+
 /* Features Section */
 .featuresSection {
   padding: 2rem 6rem;

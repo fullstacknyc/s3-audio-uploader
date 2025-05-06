@@ -30,7 +30,7 @@ export default function Footer() {
             <div className={styles.footerLinkColumn}>
               <h4>Contact</h4>
               <Link href="/contact">Contact Us</Link>
-              <Link href="mailto:support@audiocloud.com">support@audiocloud.com</Link>
+              <Link href="mailto:jgomezval@icloud.com">jgomezval@icloud.com</Link>
             </div>
           </div>
           <div className={styles.socialLinks}>

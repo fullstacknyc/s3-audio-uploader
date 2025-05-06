@@ -304,7 +304,7 @@ export default function TermsOfService() {
             If you have any questions about these Terms, please contact us:
           </p>
           <ul className={styles.contactInfo}>
-            <li>By email: support@audiocloud.com</li>
+            <li>By email: jgomezval@icloud.com</li>
             <li>By visiting our contact page: <a href="/contact">Contact Us</a></li>
           </ul>
         </section>
