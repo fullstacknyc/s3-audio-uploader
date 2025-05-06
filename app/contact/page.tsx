@@ -1,61 +1,172 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import styles from './contact.module.css';
-import { FiMail, FiMapPin, FiPhone, FiCheckCircle } from 'react-icons/fi';
+import { useState, useEffect } from "react";
+
+import styles from "./contact.module.css";
+import {
+  FiMail,
+  FiMapPin,
+  FiPhone,
+  FiCheckCircle,
+  FiAlertCircle,
+} from "react-icons/fi";
+import ReCAPTCHA from "react-google-recaptcha";
+
+declare global {
+  interface Window {
+    grecaptcha?: {
+      reset: () => void;
+    };
+  }
+}
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
   });
-  
+
   const [formStatus, setFormStatus] = useState({
     submitted: false,
+    submitting: false,
     error: false,
-    message: '',
+    message: "",
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<{
+    [key: string]: string;
+  }>({});
+  const [isClient, setIsClient] = useState(false);
+
+  // Set isClient to true when the component mounts (client-side only)
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const validateForm = () => {
+    const errors: { [key: string]: string } = {};
+
+    if (!formData.name.trim()) {
+      errors.name = "Name is required";
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.message.trim()) {
+      errors.message = "Message is required";
+    }
+
+    if (!recaptchaToken) {
+      errors.recaptcha = "Please complete the reCAPTCHA verification";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    // Validate form
-    if (!formData.name || !formData.email || !formData.message) {
-      setFormStatus({
-        submitted: true,
-        error: true,
-        message: 'Please fill out all required fields.',
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // Clear validation error for this field when typing
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[name];
+        return updated;
       });
+    }
+  };
+
+  const handleRecaptchaChange = (token: string | null) => {
+    setRecaptchaToken(token);
+    if (token) {
+      setValidationErrors((prev) => {
+        const updated = { ...prev };
+        delete updated.recaptcha;
+        return updated;
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Validate form
+    if (!validateForm()) {
       return;
     }
 
-    // In a real implementation, you would send this data to your server
-    // For demo purposes, we're just simulating a successful submission
-    setTimeout(() => {
+    setFormStatus({
+      submitted: false,
+      submitting: true,
+      error: false,
+      message: "",
+    });
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          recaptchaToken,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send message");
+      }
+
+      // Success
       setFormStatus({
         submitted: true,
+        submitting: false,
         error: false,
-        message: 'Thank you for your message! We will get back to you shortly.',
+        message: "Thank you for your message! We will get back to you shortly.",
       });
-      
+
       // Reset form after successful submission
       setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: '',
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
       });
-    }, 1000);
+
+      // Reset reCAPTCHA
+      setRecaptchaToken(null);
+      if (typeof window !== "undefined" && window.grecaptcha) {
+        window.grecaptcha.reset();
+      }
+    } catch (error) {
+      // Error handling
+      setFormStatus({
+        submitted: true,
+        submitting: false,
+        error: true,
+        message:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred. Please try again.",
+      });
+    }
   };
 
   return (
@@ -64,10 +175,11 @@ export default function ContactPage() {
         <div className={styles.contactInfo}>
           <h1>Contact Us</h1>
           <p className={styles.subtitle}>
-            Have questions about AudioCloud? We’re here to help! Fill out the form below or use one of our 
-            direct contact methods to get in touch with our team.
+            Have questions about AudioCloud? We’re here to help! Fill out the
+            form below or use one of our direct contact methods to get in touch
+            with our team.
           </p>
-          
+
           <div className={styles.contactMethods}>
             <div className={styles.contactMethod}>
               <div className={styles.contactIcon}>
@@ -78,7 +190,7 @@ export default function ContactPage() {
                 <p>jcgomezvale@gmail.com</p>
               </div>
             </div>
-            
+
             <div className={styles.contactMethod}>
               <div className={styles.contactIcon}>
                 <FiPhone />
@@ -88,42 +200,47 @@ export default function ContactPage() {
                 <p>+1 (551)900-3455</p>
               </div>
             </div>
-            
+
             <div className={styles.contactMethod}>
               <div className={styles.contactIcon}>
                 <FiMapPin />
               </div>
               <div className={styles.contactText}>
                 <h3>Address</h3>
-                <p>20 W 34th St.<br />New York, NY 10001</p>
+                <p>
+                  20 W 34th St.
+                  <br />
+                  New York, NY 10001
+                </p>
               </div>
             </div>
           </div>
-          
+
           <div className={styles.supportHours}>
             <h3>Support Hours</h3>
-            <p>Monday - Friday: 9:00 AM - 6:00 PM PT</p>
-            <p>Saturday: 10:00 AM - 4:00 PM PT</p>
+            <p>Monday - Friday: 9:00 AM - 6:00 PM ET</p>
+            <p>Saturday: 10:00 AM - 4:00 PM ET</p>
             <p>Sunday: Closed</p>
           </div>
         </div>
-        
+
         <div className={styles.contactForm}>
           <h2>Send Us a Message</h2>
-          
+
           {formStatus.submitted && !formStatus.error && (
             <div className={styles.successMessage}>
               <FiCheckCircle className={styles.successIcon} />
               <p>{formStatus.message}</p>
             </div>
           )}
-          
+
           {formStatus.submitted && formStatus.error && (
             <div className={styles.errorMessage}>
+              <FiAlertCircle className={styles.errorIcon} />
               <p>{formStatus.message}</p>
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
               <label htmlFor="name">Your Name *</label>
@@ -133,10 +250,13 @@ export default function ContactPage() {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                required
+                className={validationErrors.name ? styles.inputError : ""}
               />
+              {validationErrors.name && (
+                <p className={styles.fieldError}>{validationErrors.name}</p>
+              )}
             </div>
-            
+
             <div className={styles.formGroup}>
               <label htmlFor="email">Email Address *</label>
               <input
@@ -145,10 +265,13 @@ export default function ContactPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                required
+                className={validationErrors.email ? styles.inputError : ""}
               />
+              {validationErrors.email && (
+                <p className={styles.fieldError}>{validationErrors.email}</p>
+              )}
             </div>
-            
+
             <div className={styles.formGroup}>
               <label htmlFor="subject">Subject</label>
               <input
@@ -159,7 +282,7 @@ export default function ContactPage() {
                 onChange={handleInputChange}
               />
             </div>
-            
+
             <div className={styles.formGroup}>
               <label htmlFor="message">Message *</label>
               <textarea
@@ -168,12 +291,36 @@ export default function ContactPage() {
                 value={formData.message}
                 onChange={handleInputChange}
                 rows={6}
-                required
+                className={validationErrors.message ? styles.inputError : ""}
               ></textarea>
+              {validationErrors.message && (
+                <p className={styles.fieldError}>{validationErrors.message}</p>
+              )}
             </div>
-            
-            <button type="submit" className={styles.submitButton}>
-              Send Message
+
+            <div className={styles.formGroup}>
+              {isClient && (
+                <ReCAPTCHA
+                  sitekey={
+                    process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ||
+                    "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+                  } // Default is Google's test key
+                  onChange={handleRecaptchaChange}
+                />
+              )}
+              {validationErrors.recaptcha && (
+                <p className={styles.fieldError}>
+                  {validationErrors.recaptcha}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className={styles.submitButton}
+              disabled={formStatus.submitting}
+            >
+              {formStatus.submitting ? "Sending..." : "Send Message"}
             </button>
           </form>
         </div>
