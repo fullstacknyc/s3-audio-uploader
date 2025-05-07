@@ -1,8 +1,9 @@
+// app/api/auth/forgot-password/route.ts
 import { NextResponse } from "next/server";
 import {
   CognitoIdentityProviderClient,
-  ResendConfirmationCodeCommand,
-  ResendConfirmationCodeCommandInput,
+  ForgotPasswordCommand,
+  ForgotPasswordCommandInput,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { calculateSecretHash } from "@/lib/utils/cognitoUtils";
 
@@ -32,26 +33,26 @@ export async function POST(request: Request) {
     const clientId = process.env.COGNITO_CLIENT_ID!;
     const clientSecret = process.env.COGNITO_CLIENT_SECRET;
 
-    // Create command parameters
-    const params: ResendConfirmationCodeCommandInput = {
+    // Create forgot password params
+    const params: ForgotPasswordCommandInput = {
       ClientId: clientId,
       Username: email,
     };
 
-    // If client secret is configured, add SECRET_HASH parameter
+    // Add SecretHash if client secret is configured
     if (clientSecret) {
-      const secretHash = calculateSecretHash(email, clientId, clientSecret);
-      params.SecretHash = secretHash;
+      params.SecretHash = calculateSecretHash(email, clientId, clientSecret);
     }
 
-    // Resend confirmation code with Cognito
+    // Send forgot password request to Cognito
     try {
-      await cognitoClient.send(new ResendConfirmationCodeCommand(params));
+      await cognitoClient.send(new ForgotPasswordCommand(params));
 
       return NextResponse.json(
         {
           success: true,
-          message: "Verification code resent successfully",
+          message:
+            "Verification code sent to your email. Please check your inbox for an email with the subject 'Verification Code'.",
         },
         { status: 200 }
       );
@@ -59,9 +60,15 @@ export async function POST(request: Request) {
     } catch (error: any) {
       // Handle specific Cognito errors
       if (error.name === "UserNotFoundException") {
+        // For security reasons, don't reveal that the user doesn't exist
+        // Instead, pretend that we sent the reset instructions anyway
         return NextResponse.json(
-          { success: false, message: "User not found" },
-          { status: 404 }
+          {
+            success: true,
+            message:
+              "If an account exists with this email, a verification code has been sent. Please check your inbox.",
+          },
+          { status: 200 }
         );
       }
 
@@ -78,11 +85,11 @@ export async function POST(request: Request) {
       throw error; // Re-throw for general error handling
     }
   } catch (error) {
-    console.error("Resend code error:", error);
+    console.error("Forgot password error:", error);
     return NextResponse.json(
       {
         success: false,
-        message: "Failed to resend verification code. Please try again later.",
+        message: "Failed to process your request. Please try again later.",
       },
       { status: 500 }
     );

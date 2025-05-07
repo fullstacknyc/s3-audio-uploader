@@ -294,6 +294,10 @@
   background-color: rgba(59, 130, 246, 0.1);
 }
 
+.secondaryButton {
+  margin-bottom: 1rem;
+}
+
 .backToLogin {
   color: var(--text-muted);
   text-decoration: none;

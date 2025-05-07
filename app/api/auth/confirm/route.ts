@@ -58,8 +58,6 @@ export async function POST(request: Request) {
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.error("Cognito confirmation error:", error);
-
       // Handle specific Cognito errors
       if (error.name === "CodeMismatchException") {
         return NextResponse.json(

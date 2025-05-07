@@ -74,11 +74,22 @@ export default function SettingsPage() {
     });
 
     try {
-      // In a real app, you would update the user's profile via an API call here
-      // For now, we'll just simulate success
+      const response = await fetch("/api/auth/update-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: profileForm.name }),
+      });
 
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update profile");
+      }
+
+      // Update user context with new name
+      if (user) {
+        user.name = profileForm.name;
+      }
 
       // Show success message
       setFormStatus({
@@ -91,7 +102,10 @@ export default function SettingsPage() {
       setFormStatus({
         success: false,
         error: true,
-        message: "Failed to update profile. Please try again.",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to update profile. Please try again.",
       });
     }
   };
@@ -127,11 +141,20 @@ export default function SettingsPage() {
     }
 
     try {
-      // In a real app, you would update the user's password via an API call here
-      // For now, we'll just simulate success
+      const response = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
+      });
 
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update password");
+      }
 
       // Reset password form
       setPasswordForm({
@@ -144,14 +167,17 @@ export default function SettingsPage() {
       setFormStatus({
         success: true,
         error: false,
-        message: "Password updated successfully!",
+        message: data.message || "Password updated successfully!",
       });
     } catch (error) {
       console.error("Password update error:", error);
       setFormStatus({
         success: false,
         error: true,
-        message: "Failed to update password. Please try again.",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to update password. Please try again.",
       });
     }
   };
