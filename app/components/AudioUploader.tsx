@@ -103,6 +103,17 @@ export default function AudioUploader() {
     console.log('Ad interaction completed');
   };
 
+  const handleDownload = () => {
+    if (downloadUrl) {
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = file?.name || 'downloaded_audio';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <div className="uploader">
       <div className="fileDropzone">
@@ -185,14 +196,13 @@ export default function AudioUploader() {
                 <FiCopy />
               </button>
             </div>
-            <a
-              href={adCompleted ? downloadUrl : '#'}
-              download={adCompleted}
-              className={`downloadButton ${!adCompleted ? 'disabled' : ''}`}
+            <button
+              onClick={handleDownload}
+              className="downloadButton"
             >
               <FiDownload className="downloadIcon" />
-              {adCompleted ? 'Download Now' : 'Complete Ad to Download'}
-            </a>
+              Download Now
+            </button>
           </div>
         </div>
       )}
@@ -284,7 +294,7 @@ export default function AudioUploader() {
 
         .fileInfo {
           font-size: 0.875rem;
-          color: var(--text-muted);
+          color: var (--text-muted);
         }
 
         .uploadButton {
