@@ -1,3 +1,4 @@
+// app/api/auth/status/route.ts
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import {
@@ -6,6 +7,7 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import * as jose from "jose";
 
 // Initialize Cognito client
 const cognitoClient = new CognitoIdentityProviderClient({
@@ -30,6 +32,31 @@ const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 // Cookie name
 const COOKIE_NAME = "audiocloud_auth";
 
+// Check if token is expired
+function isTokenExpired(token: string): boolean {
+  try {
+    // Decode the token without verification (we just want to check the exp)
+    const decoded = jose.decodeJwt(token);
+
+    // Check if there's an expiration claim
+    if (!decoded.exp) {
+      // If there's no exp claim, treat as invalid/expired for safety
+      return true;
+    }
+
+    // Get current time in seconds (JWT exp is in seconds)
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    // Compare expiration time with current time
+    // Add a small buffer (10 seconds) to account for network latency
+    return decoded.exp <= currentTime + 10;
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    // If we can't decode the token, treat it as expired for safety
+    return true;
+  }
+}
+
 export async function GET() {
   try {
     // Get auth cookie
@@ -38,6 +65,19 @@ export async function GET() {
 
     if (!token) {
       return NextResponse.json({ authenticated: false }, { status: 200 });
+    }
+
+    // Check if token is expired before making the API call
+    if (isTokenExpired(token)) {
+      console.log("Token is expired, clearing cookie");
+      cookieStore.delete(COOKIE_NAME);
+      return NextResponse.json(
+        {
+          authenticated: false,
+          tokenExpired: true,
+        },
+        { status: 200 }
+      );
     }
 
     // Verify token with Cognito

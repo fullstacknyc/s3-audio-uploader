@@ -1,82 +1,126 @@
-'use client';
-import { useState, useCallback, useEffect } from 'react';
+"use client";
+import { useState, useCallback, useEffect } from "react";
+import styles from "./AudioUploader.module.css";
 
 declare global {
   interface Window {
     adsbygoogle: unknown[];
   }
 }
-import { FiUpload, FiCheckCircle, FiAlertCircle, FiCopy, FiDownload } from 'react-icons/fi';
+import {
+  FiUpload,
+  FiCheckCircle,
+  FiAlertCircle,
+  FiCopy,
+  FiDownload,
+} from "react-icons/fi";
 
 const MAX_SIZE = 100 * 1024 * 1024; // 100MB
-const SUPPORTED_FORMATS = ['audio/mpeg', 'audio/wav', 'audio/aac', 'audio/x-m4a', 'audio/ogg'];
+const SUPPORTED_FORMATS = [
+  "audio/mpeg",
+  "audio/wav",
+  "audio/aac",
+  "audio/x-m4a",
+  "audio/ogg",
+];
 
 export default function AudioUploader() {
   const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
-  const [error, setError] = useState('');
-  const [downloadUrl, setDownloadUrl] = useState('');
+  const [status, setStatus] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
+  const [error, setError] = useState("");
+  const [shortUrl, setShortUrl] = useState("");
   const [isClient, setIsClient] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [adCompleted, setAdCompleted] = useState(false);
 
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (!selectedFile) return;
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = e.target.files?.[0];
+      if (!selectedFile) return;
 
-    setError('');
-    if (!SUPPORTED_FORMATS.includes(selectedFile.type)) {
-      setError(`Unsupported format. We accept: ${SUPPORTED_FORMATS.map(f => f.split('/')[1].toUpperCase()).join(', ')}`);
-      return;
-    }
-    if (selectedFile.size > MAX_SIZE) {
-      setError(`File too large (${(selectedFile.size / (1024 * 1024)).toFixed(1)}MB). Max 100MB allowed.`);
-      return;
-    }
-    setFile(selectedFile);
-  }, []);
+      setError("");
+      if (!SUPPORTED_FORMATS.includes(selectedFile.type)) {
+        setError(
+          `Unsupported format. We accept: ${SUPPORTED_FORMATS.map((f) =>
+            f.split("/")[1].toUpperCase()
+          ).join(", ")}`
+        );
+        return;
+      }
+      if (selectedFile.size > MAX_SIZE) {
+        setError(
+          `File too large (${(selectedFile.size / (1024 * 1024)).toFixed(
+            1
+          )}MB). Max 100MB allowed.`
+        );
+        return;
+      }
+      setFile(selectedFile);
+    },
+    []
+  );
 
   const handleUpload = async () => {
     if (!file) return;
 
-    setStatus('uploading');
-    setError('');
+    setStatus("uploading");
+    setError("");
 
     try {
       // First get the presigned URL
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          filename: file.name, 
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: file.name,
           filetype: file.type,
-          filesize: file.size 
+          filesize: file.size,
         }),
       });
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to get upload URL');
+        throw new Error(errorData.error || "Failed to get upload URL");
       }
 
       const { uploadUrl, downloadUrl } = await res.json();
-      setDownloadUrl(downloadUrl);
 
       // Then upload the file directly to S3
       const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
+        method: "PUT",
         body: file,
-        headers: { 'Content-Type': file.type },
+        headers: { "Content-Type": file.type },
       });
 
       if (!uploadResponse.ok) {
-        throw new Error('Upload to storage failed');
+        throw new Error("Upload to storage failed");
       }
 
-      setStatus('success');
+      // Create a shortlink
+      const shortlinkResponse = await fetch("/api/shortlink", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          originalUrl: downloadUrl,
+          fileName: file.name,
+          fileType: file.type,
+          fileSize: file.size,
+        }),
+      });
+
+      if (!shortlinkResponse.ok) {
+        const errorData = await shortlinkResponse.json();
+        throw new Error(errorData.error || "Failed to create shortlink");
+      }
+
+      const shortlinkData = await shortlinkResponse.json();
+      setShortUrl(shortlinkData.shortUrl);
+      setStatus("success");
     } catch (err) {
-      setStatus('error');
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      setStatus("error");
+      setError(err instanceof Error ? err.message : "Upload failed");
       if (retryCount < 3) {
         setRetryCount(retryCount + 1);
         handleUpload(); // Retry upload
@@ -86,10 +130,10 @@ export default function AudioUploader() {
 
   useEffect(() => {
     setIsClient(true);
-    if (typeof window !== 'undefined' && window.adsbygoogle) {
-      const adElements = document.querySelectorAll('.adsbygoogle');
+    if (typeof window !== "undefined" && window.adsbygoogle) {
+      const adElements = document.querySelectorAll(".adsbygoogle");
       adElements.forEach((adElement) => {
-        if (!adElement.hasAttribute('data-adsbygoogle-status')) {
+        if (!adElement.hasAttribute("data-adsbygoogle-status")) {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
         }
       });
@@ -100,38 +144,36 @@ export default function AudioUploader() {
     // Simulate ad interaction completion
     setAdCompleted(true);
     // Track ad interaction for analytics
-    console.log('Ad interaction completed');
+    console.log("Ad interaction completed");
   };
 
   const handleDownload = () => {
-    if (downloadUrl) {
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = file?.name || 'downloaded_audio';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    if (shortUrl) {
+      window.open(shortUrl, "_blank");
     }
   };
 
   return (
-    <div className="uploader">
-      <div className="fileDropzone">
+    <div className={styles.uploader}>
+      <div className={styles.fileDropzone}>
         <input
           type="file"
-          accept={SUPPORTED_FORMATS.join(',')}
+          accept={SUPPORTED_FORMATS.join(",")}
           onChange={handleFileChange}
-          className="fileInput"
+          className={styles.fileInput}
           id="audio-upload"
         />
-        <label htmlFor="audio-upload" className="dropzoneLabel">
-          <FiUpload className="uploadIcon" />
-          <p className="dropzoneText">
-            {file ? file.name : 'Drag & drop your audio file or click to browse'}
+        <label htmlFor="audio-upload" className={styles.dropzoneLabel}>
+          <FiUpload className={styles.uploadIcon} />
+          <p className={styles.dropzoneText}>
+            {file
+              ? file.name
+              : "Drag & drop your audio file or click to browse"}
           </p>
           {file && (
-            <p className="fileInfo">
-              {file.type.split('/')[1].toUpperCase()} • {(file.size / (1024 * 1024)).toFixed(1)}MB
+            <p className={styles.fileInfo}>
+              {file.type.split("/")[1].toUpperCase()} •{" "}
+              {(file.size / (1024 * 1024)).toFixed(1)}MB
             </p>
           )}
         </label>
@@ -139,30 +181,32 @@ export default function AudioUploader() {
 
       <button
         onClick={handleUpload}
-        disabled={!file || status === 'uploading'}
-        className="uploadButton"
+        disabled={!file || status === "uploading"}
+        className={styles.uploadButton}
       >
-        {status === 'uploading' ? (
-          <span className="uploadingIndicator">Uploading...</span>
+        {status === "uploading" ? (
+          <span className={styles.uploadingIndicator}>Uploading...</span>
         ) : (
-          'Upload to Cloud'
+          "Upload to Cloud"
         )}
       </button>
 
-      {status === 'uploading' && (
-        <div className="progressContainer">
-          <div className="progressBar" />
+      {status === "uploading" && (
+        <div className={styles.progressContainer}>
+          <div className={styles.progressBar} />
         </div>
       )}
 
-      {status === 'success' && downloadUrl && (
-        <div className="successCard">
-          <div className="successHeader">
-            <FiCheckCircle className="successIcon" />
-            <h3 className="successTitle">Upload Complete!</h3>
+      {status === "success" && shortUrl && (
+        <div className={styles.successCard}>
+          <div className={styles.successHeader}>
+            <FiCheckCircle className={styles.successIcon} />
+            <h3 className={styles.successTitle}>Upload Complete!</h3>
           </div>
-          <div className="adSection">
-            <p className="adPrompt">Please interact with the ad below to unlock your download link:</p>
+          <div className={styles.adSection}>
+            <p className={styles.adPrompt}>
+              Please interact with the ad below to unlock your download link:
+            </p>
             <div className="adContainer">
               {isClient && (
                 <ins
@@ -176,61 +220,60 @@ export default function AudioUploader() {
               )}
             </div>
           </div>
-          <div className="downloadSection">
-            <p className="downloadText">Your file is ready to download:</p>
-            <div className="urlContainer">
+          <div className={styles.downloadSection}>
+            <p className={styles.downloadText}>
+              Your file is ready to download:
+            </p>
+            <div className={styles.urlContainer}>
               <input
                 type="text"
-                value={downloadUrl}
+                value={shortUrl}
                 readOnly
-                className="urlInput"
+                className={styles.urlInput}
               />
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(downloadUrl);
-                  alert('Link copied to clipboard!');
+                  navigator.clipboard.writeText(shortUrl);
+                  alert("Link copied to clipboard!");
                 }}
-                className="copyButton"
+                className={styles.copyButton}
                 disabled={!adCompleted}
               >
                 <FiCopy />
               </button>
             </div>
-            <button
-              onClick={handleDownload}
-              className="downloadButton"
-            >
-              <FiDownload className="downloadIcon" />
+            <button onClick={handleDownload} className={styles.downloadButton}>
+              <FiDownload className={styles.downloadIcon} />
               Download Now
             </button>
           </div>
         </div>
       )}
 
-      {status === 'error' && <p className="errorMessage">{error}</p>}
+      {status === "error" && <p className={styles.errorMessage}>{error}</p>}
 
       {error && (
-        <div className="errorCard">
-          <FiAlertCircle className="errorIcon" />
-          <div className="errorContent">
-            <h4 className="errorTitle">Upload Error</h4>
-            <p className="errorMessage">{error}</p>
+        <div className={styles.errorCard}>
+          <FiAlertCircle className={styles.errorIcon} />
+          <div className={styles.errorContent}>
+            <h4 className={styles.errorTitle}>Upload Error</h4>
+            <p className={styles.errorMessage}>{error}</p>
           </div>
         </div>
       )}
 
-      <div className="supportedFormats">
-        <p className="formatsTitle">Supported Formats:</p>
-        <ul className="formatsList">
-          {SUPPORTED_FORMATS.map(format => (
-            <li key={format} className="formatItem">
-              {format.split('/')[1].toUpperCase()}
+      <div className={styles.supportedFormats}>
+        <p className={styles.formatsTitle}>Supported Formats:</p>
+        <ul className={styles.formatsList}>
+          {SUPPORTED_FORMATS.map((format) => (
+            <li key={format} className={styles.formatItem}>
+              {format.split("/")[1].toUpperCase()}
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="adContainer">
+      <div className={styles.adContainer}>
         {isClient && (
           <ins
             style={{ display: "block" }}
@@ -241,301 +284,6 @@ export default function AudioUploader() {
           ></ins>
         )}
       </div>
-
-      <style jsx>{`
-        .uploader {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-          width: 100%;
-        }
-
-        .fileDropzone {
-          position: relative;
-          border: 2px dashed var(--border);
-          border-radius: var(--radius);
-          padding: 2.5rem 1.5rem;
-          transition: var(--transition);
-        }
-
-        .fileDropzone:hover {
-          border-color: var(--primary);
-        }
-
-        .fileInput {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          opacity: 0;
-          cursor: pointer;
-        }
-
-        .dropzoneLabel {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 0.75rem;
-          text-align: center;
-        }
-
-        .uploadIcon {
-          width: 2.5rem;
-          height: 2.5rem;
-          color: var(--text-muted);
-        }
-
-        .dropzoneText {
-          font-size: 1rem;
-          color: var(--text);
-          font-weight: 500;
-        }
-
-        .fileInfo {
-          font-size: 0.875rem;
-          color: var (--text-muted);
-        }
-
-        .uploadButton {
-          width: 100%;
-          padding: 1rem;
-          background-color: var(--primary);
-          color: white;
-          border: none;
-          border-radius: var(--radius);
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: var(--transition);
-        }
-
-        .uploadButton:hover:not(:disabled) {
-          background-color: var(--primary-hover);
-        }
-
-        .uploadButton:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-        }
-
-        .uploadingIndicator {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        .progressContainer {
-          width: 100%;
-          height: 0.375rem;
-          background-color: var(--border);
-          border-radius: 9999px;
-          overflow: hidden;
-        }
-
-        .progressBar {
-          width: 50%;
-          height: 100%;
-          background-color: var(--primary);
-          border-radius: inherit;
-          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        .successCard {
-          background-color: var(--success-bg);
-          border: 1px solid var(--success);
-          border-radius: var(--radius);
-          padding: 1.25rem;
-        }
-
-        .successHeader {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin-bottom: 1rem;
-        }
-
-        .successIcon {
-          width: 1.5rem;
-          height: 1.5rem;
-          color: var(--success);
-        }
-
-        .successTitle {
-          font-size: 1.125rem;
-          font-weight: 600;
-          color: var(--text);
-        }
-
-        .adSection {
-          margin-bottom: 1rem;
-        }
-
-        .adPrompt {
-          font-size: 0.875rem;
-          color: var(--text-muted);
-          margin-bottom: 0.5rem;
-        }
-
-        .downloadSection {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-
-        .downloadText {
-          font-size: 0.875rem;
-          color: var(--text-muted);
-        }
-
-        .urlContainer {
-          display: flex;
-          gap: 0.5rem;
-        }
-
-        .urlInput {
-          flex: 1;
-          padding: 0.625rem;
-          font-size: 0.875rem;
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
-          background-color: var(--card-bg);
-          color: var(--text);
-        }
-
-        .copyButton {
-          padding: 0 1rem;
-          background-color: var(--border);
-          border: none;
-          border-radius: var(--radius);
-          cursor: pointer;
-          transition: var(--transition);
-        }
-
-        .copyButton:hover {
-          background-color: var(--border-dark);
-        }
-
-        .copyButton:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-
-        .downloadButton {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          padding: 0.75rem;
-          background-color: color-mix(in srgb, var(--primary) 10%, transparent);
-          color: var(--primary);
-          border: none;
-          border-radius: var(--radius);
-          font-weight: 600;
-          cursor: pointer;
-          transition: var(--transition);
-        }
-
-        .downloadButton:hover {
-          background-color: color-mix(in srgb, var(--primary) 20%, transparent);
-        }
-
-        .downloadButton.disabled {
-          pointer-events: none;
-          opacity: 0.5;
-        }
-
-        .downloadIcon {
-          width: 1.25rem;
-          height: 1.25rem;
-        }
-
-        .errorCard {
-          display: flex;
-          gap: 0.75rem;
-          background-color: var(--error-bg);
-          border: 1px solid var(--error);
-          border-radius: var(--radius);
-          padding: 1rem;
-        }
-
-        .errorIcon {
-          width: 1.25rem;
-          height: 1.25rem;
-          color: var(--error);
-          flex-shrink: 0;
-          margin-top: 0.125rem;
-        }
-
-        .errorContent {
-          display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-        }
-
-        .errorTitle {
-          font-size: 1rem;
-          font-weight: 600;
-          color: var(--text);
-        }
-
-        .errorMessage {
-          font-size: 0.875rem;
-          color: var(--text);
-        }
-
-        .supportedFormats {
-          font-size: 0.875rem;
-          color: var (--text-muted);
-        }
-
-        .formatsTitle {
-          font-weight: 600;
-          margin-bottom: 0.5rem;
-        }
-
-        .formatsList {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem 1rem;
-          list-style: none;
-        }
-
-        .formatItem {
-          position: relative;
-          padding-left: 1rem;
-        }
-
-        .formatItem::before {
-          content: '•';
-          position: absolute;
-          left: 0;
-        }
-
-        .adContainer {
-          margin-top: 2rem;
-        }
-
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-
-        @media (max-width: 640px) {
-          .fileDropzone {
-            padding: 1.5rem 1rem;
-          }
-          
-          .dropzoneText {
-            font-size: 0.875rem;
-          }
-          
-          .uploadButton {
-            padding: 0.875rem;
-            font-size: 0.9375rem;
-          }
-        }
-      `}</style>
     </div>
   );
 }

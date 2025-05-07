@@ -17,6 +17,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   refreshAuthState: () => Promise<void>;
+  refreshToken: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,6 +26,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [refreshTokenValue, setRefreshTokenValue] = useState<string | null>(
+    null
+  );
+
+  // Store refresh token in session storage for persistence
+  // (we can't use cookies for this since it's client-side and we need it accessible)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Load refresh token from session storage on mount
+      const storedRefreshToken = sessionStorage.getItem(
+        "audiocloud_refresh_token"
+      );
+      if (storedRefreshToken) {
+        setRefreshTokenValue(storedRefreshToken);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && refreshTokenValue) {
+      sessionStorage.setItem("audiocloud_refresh_token", refreshTokenValue);
+    } else if (typeof window !== "undefined" && refreshTokenValue === null) {
+      sessionStorage.removeItem("audiocloud_refresh_token");
+    }
+  }, [refreshTokenValue]);
 
   // Shared function to update auth state from API response
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,13 +64,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Function to refresh the auth token
+  const refreshToken = async (): Promise<boolean> => {
+    if (!refreshTokenValue) {
+      return false;
+    }
+
+    try {
+      const response = await fetch("/api/auth/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: refreshTokenValue }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Token refresh failed");
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.user) {
+        setUser(data.user);
+        setIsAuthenticated(true);
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+      return false;
+    }
+  };
+
   // Function to fetch and update auth state
   const refreshAuthState = async () => {
     try {
       setIsLoading(true);
       const response = await fetch("/api/auth/status");
       const data = await response.json();
-      updateAuthState(data);
+
+      if (data.authenticated && data.user) {
+        updateAuthState(data);
+      } else if (refreshTokenValue) {
+        // If status check fails but we have a refresh token, try to refresh
+        const refreshSuccessful = await refreshToken();
+
+        if (!refreshSuccessful) {
+          // If refresh failed too, clear auth state
+          setUser(null);
+          setIsAuthenticated(false);
+          setRefreshTokenValue(null);
+        }
+      } else {
+        // No refresh token or status check failed
+        setUser(null);
+        setIsAuthenticated(false);
+      }
     } catch (error) {
       console.error("Failed to check auth status:", error);
       setUser(null);
@@ -77,6 +152,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(data.message || "Login failed");
       }
 
+      // Store the refresh token
+      if (data.refreshToken) {
+        setRefreshTokenValue(data.refreshToken);
+      }
+
       // If login response includes user data, use it directly
       if (data.user) {
         setUser(data.user);
@@ -107,6 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(null);
       setIsAuthenticated(false);
+      setRefreshTokenValue(null);
     } catch (error) {
       console.error("Logout error:", error);
       throw error;
@@ -149,6 +230,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
     signup,
     refreshAuthState,
+    refreshToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
