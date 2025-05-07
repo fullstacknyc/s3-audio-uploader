@@ -74,6 +74,9 @@ export async function POST(req: Request) {
       new GetObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: s3Key,
+        ResponseContentDisposition: `attachment; filename="${encodeURIComponent(
+          filename
+        )}"`,
       }),
       { expiresIn: 604800 } // Change to 1 Day
     );
