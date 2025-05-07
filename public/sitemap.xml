@@ -9,52 +9,77 @@
 
 <url>
   <loc>https://s3-audio-uploader.vercel.app/</loc>
-  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
   <priority>1.00</priority>
 </url>
 <url>
   <loc>https://s3-audio-uploader.vercel.app/about</loc>
-  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://s3-audio-uploader.vercel.app/blog</loc>
-  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/faq</loc>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/tutorials</loc>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://s3-audio-uploader.vercel.app/paid-plans</loc>
-  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://s3-audio-uploader.vercel.app/contact</loc>
-  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://s3-audio-uploader.vercel.app/terms</loc>
-  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://s3-audio-uploader.vercel.app/privacy</loc>
-  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://s3-audio-uploader.vercel.app/blog/why-audio-cloud-storage-matters</loc>
-  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://s3-audio-uploader.vercel.app/blog/secure-audio-sharing</loc>
-  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://s3-audio-uploader.vercel.app/blog/top-5-tools-for-musicians</loc>
-  <lastmod>2025-05-02T00:50:09+00:00</lastmod>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/tutorials/uploading-first-file</loc>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/tutorials/organizing-files</loc>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://s3-audio-uploader.vercel.app/tutorials/secure-sharing</loc>
+  <lastmod>2025-05-07T17:46:06+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 
