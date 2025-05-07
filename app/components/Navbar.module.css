@@ -126,10 +126,12 @@
   gap: 1rem;
 }
 
+/* Log In button styling with added padding */
 .loginButton {
   color: var(--text-muted);
   font-weight: 500;
   text-decoration: none;
+  padding: 0.5rem 1rem; /* Add padding to match the Sign Up button */
   transition: var(--transition);
 }
 
