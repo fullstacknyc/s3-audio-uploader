@@ -124,6 +124,7 @@
 .authButtons {
   display: flex;
   gap: 1rem;
+  align-items: center;
 }
 
 /* Log In button styling with added padding */
@@ -153,9 +154,165 @@
   background-color: var(--primary-hover);
 }
 
+/* User dropdown styles */
+.userDropdown {
+  position: relative;
+}
+
+.userButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.userButton:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.welcomeText {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.userName {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.userAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--primary);
+}
+
+.userDropdownIcon {
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+
+.userDropdown[aria-expanded="true"] .userDropdownIcon {
+  transform: rotate(180deg);
+}
+
+.userDropdownContent {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 250px;
+  background-color: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  z-index: 5;
+}
+
+.userInfo {
+  padding: 1rem;
+  background-color: rgba(59, 130, 246, 0.05);
+  border-bottom: 1px solid var(--border);
+}
+
+.userFullName {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+
+.userEmail {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  word-break: break-all;
+}
+
+.userTier {
+  margin-top: 0.5rem;
+}
+
+.tierBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+  text-transform: uppercase;
+  background-color: var(--primary);
+  color: white;
+}
+
+.userDropdownDivider {
+  height: 1px;
+  background-color: var(--border);
+}
+
+.userDropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  text-decoration: none;
+  transition: var(--transition);
+  font-size: 0.95rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.userDropdownItem:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.logoutButton {
+  color: var(--error);
+}
+
+/* Loading state */
+.skeleton {
+  width: 100px;
+  height: 2.5rem;
+  background: linear-gradient(
+    90deg,
+    var(--border) 25%,
+    var(--border-dark) 50%,
+    var(--border) 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: var(--radius);
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 @media (max-width: 1024px) {
   .container {
     padding: 1rem 4rem;
+  }
+
+  .welcomeText {
+    display: none;
   }
 }
 
@@ -219,5 +376,15 @@
   .authButtons {
     margin-left: auto;
     margin-right: 1rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .signupButton {
+    color: white;
+  }
+
+  .signupButton:hover {
+    color: white; /* Ensure text remains visible in dark mode too */
   }
 }

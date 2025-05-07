@@ -1,0 +1,105 @@
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import {
+  CognitoIdentityProviderClient,
+  GetUserCommand,
+} from "@aws-sdk/client-cognito-identity-provider";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+
+// Initialize Cognito client
+const cognitoClient = new CognitoIdentityProviderClient({
+  region: process.env.AWS_REGION || "us-east-1",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+});
+
+// Initialize DynamoDB client
+const ddbClient = new DynamoDBClient({
+  region: process.env.AWS_REGION || "us-east-1",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+});
+
+const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
+
+// Cookie name
+const COOKIE_NAME = "audiocloud_auth";
+
+export async function GET() {
+  try {
+    // Get auth cookie
+    const cookieStore = await cookies();
+    const token = cookieStore.get(COOKIE_NAME)?.value;
+
+    if (!token) {
+      return NextResponse.json({ authenticated: false }, { status: 200 });
+    }
+
+    // Verify token with Cognito
+    try {
+      const userResponse = await cognitoClient.send(
+        new GetUserCommand({
+          AccessToken: token,
+        })
+      );
+
+      // Extract user attributes
+      const userAttributes = userResponse.UserAttributes || [];
+      const email = userAttributes.find((attr) => attr.Name === "email")?.Value;
+      const name = userAttributes.find((attr) => attr.Name === "name")?.Value;
+      const sub = userAttributes.find((attr) => attr.Name === "sub")?.Value;
+
+      if (!sub) {
+        throw new Error("User ID not found in token");
+      }
+
+      // Get additional user data from DynamoDB
+      let userData;
+      try {
+        const userResult = await ddbDocClient.send(
+          new GetCommand({
+            TableName: process.env.DYNAMODB_USERS_TABLE!,
+            Key: { userId: sub },
+          })
+        );
+        userData = userResult.Item;
+      } catch (error) {
+        console.error("Error fetching user data from DynamoDB:", error);
+        // Continue even if DynamoDB fetch fails
+      }
+
+      // Return user info
+      return NextResponse.json(
+        {
+          authenticated: true,
+          user: {
+            id: sub,
+            email,
+            name,
+            tier: userData?.tier || "free",
+          },
+        },
+        { status: 200 }
+      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Token verification error:", error);
+
+      // Token is invalid or expired, clear it
+      cookieStore.delete(COOKIE_NAME);
+
+      return NextResponse.json({ authenticated: false }, { status: 200 });
+    }
+  } catch (error) {
+    console.error("Auth status error:", error);
+    return NextResponse.json(
+      { authenticated: false, error: "Failed to verify authentication status" },
+      { status: 500 }
+    );
+  }
+}
