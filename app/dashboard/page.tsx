@@ -12,10 +12,14 @@ import {
   FiDownload,
   FiClock,
   FiAlertCircle,
+  FiTrash2,
 } from "react-icons/fi";
 import styles from "./dashboard.module.css";
 import { useAuth } from "@/lib/context/AuthContext";
 import Link from "next/link";
+import { formatBytes } from "@/lib/constants/plans";
+import type { PlanTier } from "@/lib/constants/plans";
+import ConfirmationDialog from "@/app/components/ConfirmationDialog";
 
 interface File {
   id: string;
@@ -32,7 +36,7 @@ interface DashboardData {
     id: string;
     email: string;
     name: string;
-    tier: string;
+    tier: PlanTier;
   };
   storage: {
     used: number;
@@ -50,6 +54,13 @@ export default function DashboardPage() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // File deletion state
+  const [fileToDelete, setFileToDelete] = useState<File | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeletingFile, setIsDeletingFile] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Fetch dashboard data when component mounts
   useEffect(() => {
@@ -93,15 +104,55 @@ export default function DashboardPage() {
     }
   };
 
-  // Format bytes to human-readable format
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
+  // Handle opening the delete confirmation dialog
+  const handleDeleteClick = (file: File) => {
+    setFileToDelete(file);
+    setIsDeleteDialogOpen(true);
+    setDeleteError(null);
+  };
 
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
+  // Handle confirming file deletion
+  const handleConfirmDelete = async () => {
+    if (!fileToDelete) return;
 
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    try {
+      setIsDeletingFile(true);
+      setDeleteError(null);
+
+      const response = await fetch("/api/files/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          shortCode: fileToDelete.shortCode,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to delete file");
+      }
+
+      // Show success state briefly
+      setDeleteSuccess(true);
+      setTimeout(() => {
+        setDeleteSuccess(false);
+        // Close the dialog
+        setIsDeleteDialogOpen(false);
+        setFileToDelete(null);
+
+        // Refresh the dashboard data to update file list and storage usage
+        fetchDashboardData();
+      }, 1500);
+    } catch (err) {
+      console.error("File deletion error:", err);
+      setDeleteError(
+        err instanceof Error ? err.message : "Failed to delete file"
+      );
+    } finally {
+      setIsDeletingFile(false);
+    }
   };
 
   // Format date to human-readable format
@@ -153,6 +204,9 @@ export default function DashboardPage() {
     return null;
   }
 
+  // Get user's tier (fallback to data from auth context if API data is not available)
+  const userTier = (dashboardData?.user?.tier || user.tier) as PlanTier;
+
   return (
     <div className={styles.container}>
       <div className={styles.dashboardHeader}>
@@ -190,13 +244,7 @@ export default function DashboardPage() {
                 ? `${Math.round(
                     dashboardData.storage.percentage
                   )}% of ${formatBytes(dashboardData.storage.limit)}`
-                : `0% of ${
-                    user.tier === "free"
-                      ? "5 GB"
-                      : user.tier === "pro"
-                      ? "100 GB"
-                      : "1 TB"
-                  }`}
+                : `0% of ${formatBytes(dashboardData?.storage?.limit || 0)}`}
             </p>
           </div>
         </div>
@@ -208,13 +256,9 @@ export default function DashboardPage() {
           <div className={styles.statContent}>
             <h3 className={styles.statTitle}>Account Status</h3>
             <p className={styles.statValue}>
-              {dashboardData?.user?.tier
-                ? dashboardData.user.tier.charAt(0).toUpperCase() +
-                  dashboardData.user.tier.slice(1)
-                : user.tier.charAt(0).toUpperCase() + user.tier.slice(1)}{" "}
-              Plan
+              {userTier.charAt(0).toUpperCase() + userTier.slice(1)} Plan
             </p>
-            {(dashboardData?.user?.tier === "free" || user.tier === "free") && (
+            {userTier === "free" && (
               <Link href="/paid-plans" className={styles.upgradeButton}>
                 Upgrade Plan
               </Link>
@@ -297,6 +341,13 @@ export default function DashboardPage() {
                     <FiShare2 />
                     <span>Share</span>
                   </button>
+                  <button
+                    className={`${styles.fileActionButton} ${styles.deleteButton}`}
+                    onClick={() => handleDeleteClick(file)}
+                  >
+                    <FiTrash2 />
+                    <span>Delete</span>
+                  </button>
                 </div>
               </div>
             ))}
@@ -312,6 +363,28 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Confirmation Dialog for File Deletion */}
+      <ConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        title={deleteSuccess ? "File Deleted" : "Delete File?"}
+        message={
+          deleteSuccess
+            ? "The file has been deleted successfully."
+            : deleteError
+            ? `Error: ${deleteError}`
+            : `Are you sure you want to delete "${fileToDelete?.fileName}"? This action cannot be undone.`
+        }
+        confirmButtonText={deleteSuccess ? "Close" : "Delete File"}
+        cancelButtonText="Cancel"
+        onConfirm={
+          deleteSuccess
+            ? () => setIsDeleteDialogOpen(false)
+            : handleConfirmDelete
+        }
+        onCancel={() => setIsDeleteDialogOpen(false)}
+        isLoading={isDeletingFile}
+      />
     </div>
   );
 }

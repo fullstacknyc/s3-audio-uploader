@@ -12,6 +12,12 @@ import {
   generateShortCode,
   type CreateShortlinkData,
 } from "@/lib/models/Shortlink";
+import {
+  FILE_SIZE_LIMITS,
+  formatBytes,
+  type PlanTier,
+} from "@/lib/constants/plans";
+import { updateUserStorageUsage } from "@/lib/utils/storageUtils";
 
 // Initialize DynamoDB client
 const ddbClient = new DynamoDBClient({
@@ -56,6 +62,7 @@ async function getOrCreateAnonymousId(): Promise<string> {
 async function getCurrentUserId(): Promise<{
   userId: string;
   isAnonymous: boolean;
+  tier: PlanTier;
 }> {
   const cookieStore = await cookies();
   const authToken = cookieStore.get(AUTH_COOKIE_NAME)?.value;
@@ -77,7 +84,11 @@ async function getCurrentUserId(): Promise<{
       const data = await response.json();
 
       if (data.authenticated && data.user?.id) {
-        return { userId: data.user.id, isAnonymous: false };
+        return {
+          userId: data.user.id,
+          isAnonymous: false,
+          tier: data.user.tier || "free",
+        };
       }
     } catch (error) {
       console.error("Error verifying auth token:", error);
@@ -87,7 +98,7 @@ async function getCurrentUserId(): Promise<{
 
   // Get or create anonymous ID if not authenticated
   const anonId = await getOrCreateAnonymousId();
-  return { userId: anonId, isAnonymous: true };
+  return { userId: anonId, isAnonymous: true, tier: "free" };
 }
 
 // Create a new shortlink
@@ -110,7 +121,48 @@ export async function POST(request: Request) {
     }
 
     // Get user ID (authenticated or anonymous)
-    const { userId, isAnonymous } = await getCurrentUserId();
+    const { userId, isAnonymous, tier } = await getCurrentUserId();
+
+    // Check file size against plan limits
+    const fileSizeLimit = FILE_SIZE_LIMITS[tier];
+    if (data.fileSize > fileSizeLimit) {
+      return NextResponse.json(
+        {
+          error: `File size exceeds the ${tier} plan limit of ${formatBytes(
+            fileSizeLimit
+          )}. Please upgrade your plan or reduce file size.`,
+          upgradePlan: true,
+        },
+        { status: 400 }
+      );
+    }
+
+    // For authenticated users, update storage usage
+    if (!isAnonymous) {
+      try {
+        const storageResult = await updateUserStorageUsage(
+          userId,
+          data.fileSize
+        );
+        if (!storageResult.success) {
+          return NextResponse.json(
+            {
+              error:
+                storageResult.message ||
+                "Storage limit exceeded. Please upgrade your plan.",
+              upgradePlan: true,
+            },
+            { status: 400 }
+          );
+        }
+      } catch (storageError) {
+        console.error(
+          "Shortlink API: Error calling updateUserStorageUsage:",
+          storageError
+        );
+        throw storageError; // Re-throw to be caught by outer try/catch
+      }
+    }
 
     // Generate short code
     let shortCode = generateShortCode();
@@ -159,6 +211,7 @@ export async function POST(request: Request) {
       createdAt: now,
       expiresAt: expiresAt.toISOString(),
       downloadCount: 0,
+      storageKey: data.storageKey || null, // Save storage key for S3 file deletion
     };
 
     // Save to DynamoDB

@@ -384,6 +384,29 @@
   }
 }
 
+/* File action buttons with specific styles for delete */
+.fileActionButton.deleteButton {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: rgb(239, 68, 68);
+}
+
+.fileActionButton.deleteButton:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Success feedback styles */
+.deleteSuccess {
+  background-color: var(--success-bg);
+  border: 1px solid var(--success);
+  color: var(--success);
+}
+
+.deleteError {
+  background-color: var(--error-bg);
+  border: 1px solid var(--error);
+  color: var(--error);
+}
+
 /* Responsive adjustments */
 @media (max-width: 992px) {
   .fileCard {
@@ -409,6 +432,8 @@
   .fileActions {
     width: 100%;
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 }
 

@@ -85,7 +85,7 @@ export default function AudioUploader() {
         throw new Error(errorData.error || "Failed to get upload URL");
       }
 
-      const { uploadUrl, downloadUrl } = await res.json();
+      const { uploadUrl, downloadUrl, storageKey } = await res.json();
 
       // Then upload the file directly to S3
       const uploadResponse = await fetch(uploadUrl, {
@@ -107,8 +107,9 @@ export default function AudioUploader() {
           fileName: file.name,
           fileType: file.type,
           fileSize: file.size,
+          storageKey: storageKey, // Pass the storage key for future deletion
         }),
-      });
+      });   
 
       if (!shortlinkResponse.ok) {
         const errorData = await shortlinkResponse.json();
@@ -122,7 +123,7 @@ export default function AudioUploader() {
       setStatus("error");
       setError(err instanceof Error ? err.message : "Upload failed");
       if (retryCount < 3) {
-        setRetryCount(retryCount + 1);
+        setRetryCount(prev => prev + 1);
         handleUpload(); // Retry upload
       }
     }

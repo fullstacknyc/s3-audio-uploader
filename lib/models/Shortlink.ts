@@ -15,6 +15,7 @@ export interface Shortlink {
   createdAt: string; // ISO date string
   expiresAt?: string; // Optional, ISO date string
   downloadCount: number;
+  storageKey: string;
 }
 
 /**
@@ -26,6 +27,7 @@ export interface CreateShortlinkData {
   fileType: string;
   fileSize: number;
   userId?: string; // Optional, if anonymous
+  storageKey?: string; // For S3 file deletion later
 }
 
 /**

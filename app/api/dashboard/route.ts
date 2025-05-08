@@ -11,6 +11,11 @@ import {
   QueryCommand,
   DynamoDBDocumentClient,
 } from "@aws-sdk/lib-dynamodb";
+import {
+  STORAGE_LIMITS,
+  calculateStoragePercentage,
+} from "@/lib/constants/plans";
+import type { PlanTier } from "@/lib/constants/plans";
 
 // Initialize Cognito client
 const cognitoClient = new CognitoIdentityProviderClient({
@@ -75,21 +80,14 @@ export async function GET() {
       );
 
       const userData = userResult.Item || {
-        tier: "free",
+        tier: "free" as PlanTier,
         storageUsed: 0,
       };
 
-      // Calculate storage limits based on tier
-      const storageLimits = {
-        free: 5 * 1024 * 1024 * 1024, // 5GB in bytes
-        pro: 100 * 1024 * 1024 * 1024, // 100GB in bytes
-        studio: 1024 * 1024 * 1024 * 1024, // 1TB in bytes
-      };
-
-      const tier = userData.tier || "free";
-      const storageLimit = storageLimits[tier as keyof typeof storageLimits];
+      const tier = (userData.tier || "free") as PlanTier;
       const storageUsed = userData.storageUsed || 0;
-      const storagePercentage = (storageUsed / storageLimit) * 100;
+      const storageLimit = STORAGE_LIMITS[tier];
+      const storagePercentage = calculateStoragePercentage(storageUsed, tier);
 
       // Get user's files from the shortlinks table
       const filesResult = await ddbDocClient.send(
