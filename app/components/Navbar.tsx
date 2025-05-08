@@ -55,7 +55,7 @@ export default function Navbar() {
     setIsUserMenuOpen(false);
   }, [pathname]);
 
-  console.log("pathname", pathname);
+  // console.log("pathname", pathname);
   return (
     <nav className={styles.navbar}>
       <div className={styles.container}>
