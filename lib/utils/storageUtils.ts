@@ -20,6 +20,31 @@ const ddbClient = new DynamoDBClient({
 const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 
 /**
+ * Calculate storage percentage used
+ * @param used Storage used in bytes
+ * @param tier User plan tier
+ * @returns Percentage of storage used (0-100)
+ */
+export function calculateStoragePercentage(
+  used: number,
+  tier: PlanTier
+): number {
+  const limit = STORAGE_LIMITS[tier];
+  return Math.min(100, (used / limit) * 100);
+}
+
+/**
+ * Get remaining storage for a user
+ * @param used Storage used in bytes
+ * @param tier User plan tier
+ * @returns Remaining storage in bytes
+ */
+export function getRemainingStorage(used: number, tier: PlanTier): number {
+  const limit = STORAGE_LIMITS[tier];
+  return Math.max(0, limit - used);
+}
+
+/**
  * Update a user's storage usage when they upload a file
  * @param userId The user's ID
  * @param fileSize The size of the uploaded file in bytes
@@ -177,7 +202,7 @@ export async function getUserStorageInfo(userId: string): Promise<{
     const tier = (userData.tier || "free") as PlanTier;
     const storageUsed = userData.storageUsed || 0;
     const storageLimit = STORAGE_LIMITS[tier];
-    const storagePercentage = Math.min(100, (storageUsed / storageLimit) * 100);
+    const storagePercentage = calculateStoragePercentage(storageUsed, tier);
 
     return {
       storageUsed,

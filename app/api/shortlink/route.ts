@@ -8,16 +8,11 @@ import {
   DynamoDBDocumentClient,
 } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
-import {
-  generateShortCode,
-  type CreateShortlinkData,
-} from "@/lib/models/Shortlink";
-import {
-  FILE_SIZE_LIMITS,
-  formatBytes,
-  type PlanTier,
-} from "@/lib/constants/plans";
+import { type CreateShortlinkData } from "@/lib/models/Shortlink";
+import { FILE_SIZE_LIMITS, type PlanTier } from "@/lib/constants/plans";
+import { formatBytes } from "@/lib/utils/formatUtils";
 import { updateUserStorageUsage } from "@/lib/utils/storageUtils";
+import { generateShortCode } from "@/lib/utils/shortlinkUtils";
 
 // Initialize DynamoDB client
 const ddbClient = new DynamoDBClient({

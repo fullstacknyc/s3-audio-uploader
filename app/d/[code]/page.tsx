@@ -12,6 +12,12 @@ import {
   FiMusic,
 } from "react-icons/fi";
 import styles from "./download.module.css";
+import {
+  formatBytes,
+  formatDate,
+  formatDateTime,
+  getDaysUntil,
+} from "@/lib/utils/formatUtils";
 
 interface ShortlinkData {
   shortCode: string;
@@ -60,33 +66,19 @@ export default function DownloadPage() {
     }
   };
 
-  // Format file size to human-readable format
-  const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return bytes + " B";
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-    if (bytes < 1024 * 1024 * 1024)
-      return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-    return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
-  };
-
-  // Format date to human-readable format
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  // Utility functions are now imported from formatUtils
 
   // Calculate days until expiration
-  const getDaysUntilExpiration = (expiryDate?: string): number | null => {
-    if (!expiryDate) return null;
+  const daysUntilExpiration = data?.expiresAt
+    ? getDaysUntil(data.expiresAt)
+    : null;
 
-    const expiry = new Date(expiryDate);
-    const now = new Date();
-    const diffTime = expiry.getTime() - now.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  // Get file icon based on type
+  const getFileIcon = (fileType: string) => {
+    if (fileType.includes("audio")) {
+      return <FiMusic size={48} className={styles.fileTypeIcon} />;
+    }
+    return <FiFile size={48} className={styles.fileTypeIcon} />;
   };
 
   if (loading) {
@@ -136,17 +128,6 @@ export default function DownloadPage() {
     );
   }
 
-  // Get file icon based on type
-  const getFileIcon = (fileType: string) => {
-    if (fileType.includes("audio")) {
-      return <FiMusic size={48} className={styles.fileTypeIcon} />;
-    }
-    return <FiFile size={48} className={styles.fileTypeIcon} />;
-  };
-
-  // Get days until expiration
-  const daysUntilExpiration = getDaysUntilExpiration(data.expiresAt);
-
   return (
     <div className={styles.container}>
       <div className={styles.downloadCard}>
@@ -161,7 +142,7 @@ export default function DownloadPage() {
                 {data.fileType.split("/")[1].toUpperCase()}
               </span>
               <span className={styles.fileSize}>
-                {formatFileSize(data.fileSize)}
+                {formatBytes(data.fileSize)}
               </span>
             </div>
           </div>
@@ -190,6 +171,10 @@ export default function DownloadPage() {
                   {daysUntilExpiration && daysUntilExpiration > 0
                     ? `Expires in ${daysUntilExpiration} days`
                     : "Expires soon"}
+                  <br />
+                  <span className={styles.expirationDate}>
+                    Available until: {formatDateTime(data.expiresAt)}
+                  </span>
                 </p>
               </div>
             </div>

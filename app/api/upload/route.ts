@@ -10,12 +10,12 @@ import { cookies } from "next/headers";
 import {
   FILE_SIZE_LIMITS,
   DOWNLOAD_EXPIRY_TIMES,
-  formatBytes,
   SUPPORTED_AUDIO_FORMATS,
-  getSupportedFormatLabels,
 } from "@/lib/constants/plans";
+import { formatBytes } from "@/lib/utils/formatUtils";
 import type { PlanTier } from "@/lib/constants/plans";
 import { getUserStorageInfo } from "@/lib/utils/storageUtils";
+import { getSupportedFormatLabels } from "@/lib/utils/audioFormatUtils";
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION || "us-east-1", // Fallback to 'us-east-1' if AWS_REGION is not set

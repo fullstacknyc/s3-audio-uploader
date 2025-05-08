@@ -11,11 +11,9 @@ import {
   QueryCommand,
   DynamoDBDocumentClient,
 } from "@aws-sdk/lib-dynamodb";
-import {
-  STORAGE_LIMITS,
-  calculateStoragePercentage,
-} from "@/lib/constants/plans";
+import { STORAGE_LIMITS } from "@/lib/constants/plans";
 import type { PlanTier } from "@/lib/constants/plans";
+import { calculateStoragePercentage } from "@/lib/utils/storageUtils";
 
 // Initialize Cognito client
 const cognitoClient = new CognitoIdentityProviderClient({

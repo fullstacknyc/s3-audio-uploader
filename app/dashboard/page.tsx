@@ -17,7 +17,7 @@ import {
 import styles from "./dashboard.module.css";
 import { useAuth } from "@/lib/context/AuthContext";
 import Link from "next/link";
-import { formatBytes } from "@/lib/constants/plans";
+import { formatBytes } from "@/lib/utils/formatUtils";
 import type { PlanTier } from "@/lib/constants/plans";
 import ConfirmationDialog from "@/app/components/ConfirmationDialog";
 

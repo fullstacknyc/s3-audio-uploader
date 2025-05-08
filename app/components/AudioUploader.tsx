@@ -5,9 +5,8 @@ import {
   MAX_FILE_SIZE,
   SUPPORTED_AUDIO_FORMATS,
   AUDIO_FORMAT_LABELS,
-  getSupportedFormatLabels,
-  formatBytes,
 } from "@/lib/constants/plans";
+import { formatBytes } from "@/lib/utils/formatUtils";
 
 declare global {
   interface Window {
@@ -21,6 +20,7 @@ import {
   FiCopy,
   FiDownload,
 } from "react-icons/fi";
+import { getSupportedFormatLabels } from "@/lib/utils/audioFormatUtils";
 
 export default function AudioUploader() {
   const [file, setFile] = useState<File | null>(null);
