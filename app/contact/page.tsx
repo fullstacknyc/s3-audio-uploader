@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
+import DOMPurify from "dompurify";
 import styles from "./contact.module.css";
 import {
   FiMail,
@@ -53,21 +53,39 @@ export default function ContactPage() {
     }
   }, []);
 
+  // Sanitize user input before validation or submission
+  const sanitizeInput = (input: string): string => {
+    // Use DOMPurify to sanitize the input
+    return DOMPurify.sanitize(input, {
+      ALLOWED_TAGS: [], // No HTML tags allowed
+      ALLOWED_ATTR: [], // No HTML attributes allowed
+    }).trim();
+  };
+
   const validateForm = () => {
     const errors: { [key: string]: string } = {};
+    const sanitizedName = sanitizeInput(formData.name);
+    const sanitizedEmail = sanitizeInput(formData.email);
+    const sanitizedMessage = sanitizeInput(formData.message);
 
-    if (!formData.name.trim()) {
+    if (!sanitizedName) {
       errors.name = "Name is required";
+    } else if (sanitizedName.length > 100) {
+      errors.name = "Name is too long (maximum 100 characters)";
     }
 
-    if (!formData.email.trim()) {
+    if (!sanitizedEmail) {
       errors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    } else if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(sanitizedEmail)
+    ) {
       errors.email = "Please enter a valid email address";
     }
 
-    if (!formData.message.trim()) {
+    if (!sanitizedMessage) {
       errors.message = "Message is required";
+    } else if (sanitizedMessage.length > 1000) {
+      errors.message = "Message is too long (maximum 1000 characters)";
     }
 
     if (!recaptchaToken) {
@@ -82,6 +100,12 @@ export default function ContactPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+
+    // Prevent extremely long inputs that could be used for DoS
+    if (value.length > 2000) {
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -124,6 +148,14 @@ export default function ContactPage() {
     });
 
     try {
+      // Sanitize all inputs before submission
+      const sanitizedFormData = {
+        name: sanitizeInput(formData.name),
+        email: sanitizeInput(formData.email),
+        subject: sanitizeInput(formData.subject || "Contact Form Submission"),
+        message: sanitizeInput(formData.message),
+      };
+
       // Verify reCAPTCHA first
       const recaptchaResponse = await fetch("/api/verify-recaptcha", {
         method: "POST",
@@ -139,12 +171,12 @@ export default function ContactPage() {
         throw new Error(recaptchaData.error || "reCAPTCHA verification failed");
       }
 
-      // Send email using EmailJS
+      // Send email using EmailJS with sanitized data
       const templateParams = {
-        from_name: formData.name,
-        from_email: formData.email,
-        subject: formData.subject || "Contact Form Submission",
-        message: formData.message,
+        from_name: sanitizedFormData.name,
+        from_email: sanitizedFormData.email,
+        subject: sanitizedFormData.subject,
+        message: sanitizedFormData.message,
       };
 
       await emailjs.send(
@@ -176,7 +208,7 @@ export default function ContactPage() {
       }
     } catch (error) {
       // Error handling
-      console.error("EmailJS Error:", error);
+      console.error("Contact Form Error:", error);
       setFormStatus({
         submitted: true,
         submitting: false,
@@ -271,9 +303,17 @@ export default function ContactPage() {
                 value={formData.name}
                 onChange={handleInputChange}
                 className={validationErrors.name ? styles.inputError : ""}
+                maxLength={100}
+                aria-required="true"
+                aria-invalid={!!validationErrors.name}
+                aria-describedby={
+                  validationErrors.name ? "name-error" : undefined
+                }
               />
               {validationErrors.name && (
-                <p className={styles.fieldError}>{validationErrors.name}</p>
+                <p className={styles.fieldError} id="name-error">
+                  {validationErrors.name}
+                </p>
               )}
             </div>
 
@@ -286,9 +326,17 @@ export default function ContactPage() {
                 value={formData.email}
                 onChange={handleInputChange}
                 className={validationErrors.email ? styles.inputError : ""}
+                maxLength={100}
+                aria-required="true"
+                aria-invalid={!!validationErrors.email}
+                aria-describedby={
+                  validationErrors.email ? "email-error" : undefined
+                }
               />
               {validationErrors.email && (
-                <p className={styles.fieldError}>{validationErrors.email}</p>
+                <p className={styles.fieldError} id="email-error">
+                  {validationErrors.email}
+                </p>
               )}
             </div>
 
@@ -300,6 +348,7 @@ export default function ContactPage() {
                 name="subject"
                 value={formData.subject}
                 onChange={handleInputChange}
+                maxLength={200}
               />
             </div>
 
@@ -312,9 +361,17 @@ export default function ContactPage() {
                 onChange={handleInputChange}
                 rows={6}
                 className={validationErrors.message ? styles.inputError : ""}
+                maxLength={1000}
+                aria-required="true"
+                aria-invalid={!!validationErrors.message}
+                aria-describedby={
+                  validationErrors.message ? "message-error" : undefined
+                }
               ></textarea>
               {validationErrors.message && (
-                <p className={styles.fieldError}>{validationErrors.message}</p>
+                <p className={styles.fieldError} id="message-error">
+                  {validationErrors.message}
+                </p>
               )}
             </div>
 
@@ -339,6 +396,7 @@ export default function ContactPage() {
               type="submit"
               className={styles.submitButton}
               disabled={formStatus.submitting}
+              aria-disabled={formStatus.submitting}
             >
               {formStatus.submitting ? "Sending..." : "Send Message"}
             </button>
