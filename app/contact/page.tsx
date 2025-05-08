@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import DOMPurify from "dompurify";
+import { useState, useEffect, useRef } from "react";
 import styles from "./contact.module.css";
 import {
   FiMail,
@@ -10,16 +9,6 @@ import {
   FiCheckCircle,
   FiAlertCircle,
 } from "react-icons/fi";
-import ReCAPTCHA from "react-google-recaptcha";
-import emailjs from "@emailjs/browser";
-
-declare global {
-  interface Window {
-    grecaptcha?: {
-      reset: () => void;
-    };
-  }
-}
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -36,60 +25,101 @@ export default function ContactPage() {
     message: "",
   });
 
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: string;
   }>({});
   const [isClient, setIsClient] = useState(false);
 
-  // Set isClient to true when the component mounts (client-side only)
+  // Reference to turnstile container
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  // Reference to turnstile widget
+  const widgetIdRef = useRef<string | null>(null);
+
+  // Initialize Turnstile when component mounts
   useEffect(() => {
     setIsClient(true);
 
-    // Initialize EmailJS
-    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
-    if (publicKey) {
-      emailjs.init(publicKey);
+    // Load Turnstile script if it hasn't been loaded yet
+    if (typeof window !== "undefined" && !window.turnstile) {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+
+      script.onload = renderTurnstile;
+
+      return () => {
+        document.body.removeChild(script);
+      };
+    } else if (typeof window !== "undefined" && window.turnstile) {
+      renderTurnstile();
     }
   }, []);
 
-  // Sanitize user input before validation or submission
-  const sanitizeInput = (input: string): string => {
-    // Use DOMPurify to sanitize the input
-    return DOMPurify.sanitize(input, {
-      ALLOWED_TAGS: [], // No HTML tags allowed
-      ALLOWED_ATTR: [], // No HTML attributes allowed
-    }).trim();
+  // Render Turnstile widget
+  const renderTurnstile = () => {
+    if (!turnstileRef.current || !window.turnstile) return;
+
+    // Reset any existing widget
+    if (widgetIdRef.current) {
+      window.turnstile.reset(widgetIdRef.current);
+    }
+
+    // Render new widget
+    widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
+      sitekey:
+        process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ||
+        "1x00000000000000000000AA",
+      callback: function (token: string) {
+        setTurnstileToken(token);
+        // Clear validation error when token is received
+        setValidationErrors((prev) => {
+          const updated = { ...prev };
+          delete updated.turnstile;
+          return updated;
+        });
+      },
+      "expired-callback": function () {
+        setTurnstileToken(null);
+        setValidationErrors((prev) => ({
+          ...prev,
+          turnstile: "Verification expired. Please verify again.",
+        }));
+      },
+    });
   };
 
+  // Validate form client-side before submission
   const validateForm = () => {
     const errors: { [key: string]: string } = {};
-    const sanitizedName = sanitizeInput(formData.name);
-    const sanitizedEmail = sanitizeInput(formData.email);
-    const sanitizedMessage = sanitizeInput(formData.message);
+    const nameValue = formData.name.trim();
+    const emailValue = formData.email.trim();
+    const messageValue = formData.message.trim();
 
-    if (!sanitizedName) {
+    if (!nameValue) {
       errors.name = "Name is required";
-    } else if (sanitizedName.length > 100) {
+    } else if (nameValue.length > 100) {
       errors.name = "Name is too long (maximum 100 characters)";
     }
 
-    if (!sanitizedEmail) {
+    if (!emailValue) {
       errors.email = "Email is required";
     } else if (
-      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(sanitizedEmail)
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(emailValue)
     ) {
       errors.email = "Please enter a valid email address";
     }
 
-    if (!sanitizedMessage) {
+    if (!messageValue) {
       errors.message = "Message is required";
-    } else if (sanitizedMessage.length > 1000) {
+    } else if (messageValue.length > 1000) {
       errors.message = "Message is too long (maximum 1000 characters)";
     }
 
-    if (!recaptchaToken) {
-      errors.recaptcha = "Please complete the reCAPTCHA verification";
+    if (!turnstileToken) {
+      errors.turnstile = "Please complete the verification challenge";
     }
 
     setValidationErrors(errors);
@@ -121,17 +151,6 @@ export default function ContactPage() {
     }
   };
 
-  const handleRecaptchaChange = (token: string | null) => {
-    setRecaptchaToken(token);
-    if (token) {
-      setValidationErrors((prev) => {
-        const updated = { ...prev };
-        delete updated.recaptcha;
-        return updated;
-      });
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -148,49 +167,35 @@ export default function ContactPage() {
     });
 
     try {
-      // Sanitize all inputs before submission
-      const sanitizedFormData = {
-        name: sanitizeInput(formData.name),
-        email: sanitizeInput(formData.email),
-        subject: sanitizeInput(formData.subject || "Contact Form Submission"),
-        message: sanitizeInput(formData.message),
-      };
-
-      // Verify reCAPTCHA first
-      const recaptchaResponse = await fetch("/api/verify-recaptcha", {
+      // Submit form data to our server-side API endpoint
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ recaptchaToken }),
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          subject: formData.subject.trim() || "Contact Form Submission",
+          message: formData.message.trim(),
+          turnstileToken,
+        }),
       });
 
-      const recaptchaData = await recaptchaResponse.json();
+      const data = await response.json();
 
-      if (!recaptchaResponse.ok) {
-        throw new Error(recaptchaData.error || "reCAPTCHA verification failed");
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send message");
       }
-
-      // Send email using EmailJS with sanitized data
-      const templateParams = {
-        from_name: sanitizedFormData.name,
-        from_email: sanitizedFormData.email,
-        subject: sanitizedFormData.subject,
-        message: sanitizedFormData.message,
-      };
-
-      await emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || "",
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || "",
-        templateParams
-      );
 
       // Success
       setFormStatus({
         submitted: true,
         submitting: false,
         error: false,
-        message: "Thank you for your message! We will get back to you shortly.",
+        message:
+          data.message ||
+          "Thank you for your message! We will get back to you shortly.",
       });
 
       // Reset form after successful submission
@@ -201,10 +206,10 @@ export default function ContactPage() {
         message: "",
       });
 
-      // Reset reCAPTCHA
-      setRecaptchaToken(null);
-      if (typeof window !== "undefined" && window.grecaptcha) {
-        window.grecaptcha.reset();
+      // Reset Turnstile
+      setTurnstileToken(null);
+      if (widgetIdRef.current && window.turnstile) {
+        window.turnstile.reset(widgetIdRef.current);
       }
     } catch (error) {
       // Error handling
@@ -249,7 +254,7 @@ export default function ContactPage() {
               </div>
               <div className={styles.contactText}>
                 <h3>Phone</h3>
-                <p>+1 (551)900-3455</p>
+                <p>+1 (551) 900-3455</p>
               </div>
             </div>
 
@@ -377,17 +382,14 @@ export default function ContactPage() {
 
             <div className={styles.formGroup}>
               {isClient && (
-                <ReCAPTCHA
-                  sitekey={
-                    process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ||
-                    "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
-                  } // Default is Google's test key
-                  onChange={handleRecaptchaChange}
-                />
+                <div
+                  ref={turnstileRef}
+                  className={styles.turnstileContainer}
+                ></div>
               )}
-              {validationErrors.recaptcha && (
+              {validationErrors.turnstile && (
                 <p className={styles.fieldError}>
-                  {validationErrors.recaptcha}
+                  {validationErrors.turnstile}
                 </p>
               )}
             </div>

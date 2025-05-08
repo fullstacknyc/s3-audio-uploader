@@ -1,6 +1,22 @@
 # *
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /auth/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /files/
+Disallow: /.well-known/
+
+# Block specific bots that might flag content
+User-agent: MalwareBytes
+Allow: /about
+Allow: /faq
+Allow: /blog
+Allow: /terms
+Allow: /privacy
+Allow: /contact
+Disallow: /
 
 # Host
 Host: https://s3-audio-uploader.vercel.app
