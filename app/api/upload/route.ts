@@ -11,6 +11,8 @@ import {
   FILE_SIZE_LIMITS,
   DOWNLOAD_EXPIRY_TIMES,
   formatBytes,
+  SUPPORTED_AUDIO_FORMATS,
+  getSupportedFormatLabels,
 } from "@/lib/constants/plans";
 import type { PlanTier } from "@/lib/constants/plans";
 import { getUserStorageInfo } from "@/lib/utils/storageUtils";
@@ -30,20 +32,6 @@ if (!process.env.AWS_REGION) {
 
 // Cookie name for auth
 const AUTH_COOKIE_NAME = "audiocloud_auth";
-
-// Valid audio file types
-const VALID_AUDIO_TYPES = [
-  "audio/mpeg", // MP3
-  "audio/wav", // WAV
-  "audio/x-wav", // Alternative WAV MIME type
-  "audio/aac", // AAC
-  "audio/x-m4a", // M4A
-  "audio/ogg", // OGG
-  "audio/flac", // FLAC
-  "audio/x-flac", // Alternative FLAC MIME type
-  "audio/aiff", // AIFF
-  "audio/x-aiff", // Alternative AIFF MIME type
-];
 
 // Get the current user's info (tier, ID, etc.)
 async function getCurrentUserInfo() {
@@ -94,12 +82,12 @@ export async function POST(req: Request) {
     const { userId, userTier } = await getCurrentUserInfo();
 
     // Validate file type
-    if (!VALID_AUDIO_TYPES.includes(filetype)) {
+    if (!SUPPORTED_AUDIO_FORMATS.includes(filetype)) {
       return NextResponse.json(
         {
-          error: `Unsupported file type. Supported formats: ${VALID_AUDIO_TYPES.map(
-            (type) => type.split("/")[1].toUpperCase()
-          ).join(", ")}`,
+          error: `Unsupported file type. Supported formats: ${getSupportedFormatLabels().join(
+            ", "
+          )}`,
         },
         { status: 400 }
       );

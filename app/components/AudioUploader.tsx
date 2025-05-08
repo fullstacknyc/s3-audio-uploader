@@ -1,6 +1,13 @@
 "use client";
 import { useState, useCallback, useEffect } from "react";
 import styles from "./AudioUploader.module.css";
+import {
+  MAX_FILE_SIZE,
+  SUPPORTED_AUDIO_FORMATS,
+  AUDIO_FORMAT_LABELS,
+  getSupportedFormatLabels,
+  formatBytes,
+} from "@/lib/constants/plans";
 
 declare global {
   interface Window {
@@ -14,15 +21,6 @@ import {
   FiCopy,
   FiDownload,
 } from "react-icons/fi";
-
-const MAX_SIZE = 100 * 1024 * 1024; // 100MB
-const SUPPORTED_FORMATS = [
-  "audio/mpeg",
-  "audio/wav",
-  "audio/aac",
-  "audio/x-m4a",
-  "audio/ogg",
-];
 
 export default function AudioUploader() {
   const [file, setFile] = useState<File | null>(null);
@@ -41,19 +39,19 @@ export default function AudioUploader() {
       if (!selectedFile) return;
 
       setError("");
-      if (!SUPPORTED_FORMATS.includes(selectedFile.type)) {
+      if (!SUPPORTED_AUDIO_FORMATS.includes(selectedFile.type)) {
         setError(
-          `Unsupported format. We accept: ${SUPPORTED_FORMATS.map((f) =>
-            f.split("/")[1].toUpperCase()
-          ).join(", ")}`
+          `Unsupported format. We accept: ${getSupportedFormatLabels().join(
+            ", "
+          )}`
         );
         return;
       }
-      if (selectedFile.size > MAX_SIZE) {
+      if (selectedFile.size > MAX_FILE_SIZE) {
         setError(
-          `File too large (${(selectedFile.size / (1024 * 1024)).toFixed(
-            1
-          )}MB). Max 100MB allowed.`
+          `File too large (${formatBytes(
+            selectedFile.size
+          )}). Max ${formatBytes(MAX_FILE_SIZE)} allowed.`
         );
         return;
       }
@@ -109,7 +107,7 @@ export default function AudioUploader() {
           fileSize: file.size,
           storageKey: storageKey, // Pass the storage key for future deletion
         }),
-      });   
+      });
 
       if (!shortlinkResponse.ok) {
         const errorData = await shortlinkResponse.json();
@@ -123,7 +121,7 @@ export default function AudioUploader() {
       setStatus("error");
       setError(err instanceof Error ? err.message : "Upload failed");
       if (retryCount < 3) {
-        setRetryCount(prev => prev + 1);
+        setRetryCount((prev) => prev + 1);
         handleUpload(); // Retry upload
       }
     }
@@ -159,7 +157,7 @@ export default function AudioUploader() {
       <div className={styles.fileDropzone}>
         <input
           type="file"
-          accept={SUPPORTED_FORMATS.join(",")}
+          accept={SUPPORTED_AUDIO_FORMATS.join(",")}
           onChange={handleFileChange}
           className={styles.fileInput}
           id="audio-upload"
@@ -173,8 +171,9 @@ export default function AudioUploader() {
           </p>
           {file && (
             <p className={styles.fileInfo}>
-              {file.type.split("/")[1].toUpperCase()} •{" "}
-              {(file.size / (1024 * 1024)).toFixed(1)}MB
+              {AUDIO_FORMAT_LABELS[file.type] ||
+                file.type.split("/")[1].toUpperCase()}{" "}
+              • {formatBytes(file.size)}
             </p>
           )}
         </label>
@@ -266,9 +265,9 @@ export default function AudioUploader() {
       <div className={styles.supportedFormats}>
         <p className={styles.formatsTitle}>Supported Formats:</p>
         <ul className={styles.formatsList}>
-          {SUPPORTED_FORMATS.map((format) => (
+          {getSupportedFormatLabels().map((format) => (
             <li key={format} className={styles.formatItem}>
-              {format.split("/")[1].toUpperCase()}
+              {format}
             </li>
           ))}
         </ul>

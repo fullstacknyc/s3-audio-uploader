@@ -72,6 +72,49 @@ export const DOWNLOAD_EXPIRY_TIMES: Record<PlanTier, number> = {
 };
 
 /**
+ * Maximum file size (in bytes) for client-side validation
+ * This should match the FILE_SIZE_LIMITS.free value
+ */
+export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+
+/**
+ * Supported audio file formats for upload
+ */
+export const SUPPORTED_AUDIO_FORMATS = [
+  "audio/mpeg", // MP3
+  "audio/wav", // WAV
+  "audio/aac", // AAC
+  "audio/x-m4a", // M4A
+  "audio/ogg", // OGG
+  "audio/flac", // FLAC
+  "audio/x-flac", // Alternative FLAC MIME type
+  "audio/aiff", // AIFF
+  "audio/x-aiff", // Alternative AIFF MIME type
+];
+
+/**
+ * Mapping between MIME types and user-friendly file extensions
+ */
+export const AUDIO_FORMAT_LABELS: Record<string, string> = {
+  "audio/mpeg": "MP3",
+  "audio/wav": "WAV",
+  "audio/aac": "AAC",
+  "audio/x-m4a": "M4A",
+  "audio/ogg": "OGG",
+  "audio/flac": "FLAC",
+  "audio/x-flac": "FLAC",
+  "audio/aiff": "AIFF",
+  "audio/x-aiff": "AIFF",
+};
+
+/**
+ * Get user-friendly format labels for all supported formats
+ */
+export function getSupportedFormatLabels(): string[] {
+  return [...new Set(Object.values(AUDIO_FORMAT_LABELS))];
+}
+
+/**
  * Format bytes to human-readable format
  * @param bytes Number of bytes
  * @param decimals Number of decimal places (default: 2)
