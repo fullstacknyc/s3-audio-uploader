@@ -22,7 +22,14 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "AudioCloud - Secure Audio Storage for Musicians",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_FRONTEND_URL ||
+      "https://s3-audio-uploader.vercel.app"
+  ),
+  title: {
+    template: "%s | AudioCloud",
+    default: "AudioCloud - Secure Audio Storage for Musicians",
+  },
   description:
     "Upload, store, and share your audio files securely with AudioCloud. The perfect cloud storage solution for musicians, producers, and audio professionals.",
   keywords:
@@ -30,6 +37,51 @@ export const metadata: Metadata = {
   authors: [{ name: "Camilo G." }],
   verification: {
     google: "google4585d79a345a47f8.html",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: 'any' },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    // other: [
+    //   {
+    //     rel: "mask-icon",
+    //     url: "/safari-pinned-tab.svg",
+    //     color: "#3b82f6", // Use your brand color
+    //   },
+    // ],
+  },
+  manifest: "/site.webmanifest",
+  openGraph: {
+    type: "website",
+    siteName: "AudioCloud",
+    title: "AudioCloud - Secure Audio Storage for Musicians",
+    description:
+      "Upload, store, and share your audio files securely with AudioCloud.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "AudioCloud - Secure Audio Storage",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AudioCloud - Secure Audio Storage",
+    description:
+      "Upload, store, and share your audio files securely with AudioCloud.",
+    images: ["/twitter-card.png"],
+    creator: "@yourtwitterhandle", // If applicable
+  },
+  appleWebApp: {
+    title: "AudioCloud",
+    statusBarStyle: "black-translucent",
   },
 };
 
