@@ -300,8 +300,20 @@ const PlansPage = () => {
             storage needs.
           </p>
           <div className={styles.ctaButtons}>
-            <button className={styles.primaryButton}>Get Started Free</button>
-            <a href="#plans" className={styles.secondaryButton}>
+            <button
+              className={styles.primaryButton}
+              onClick={() => window.location.href = "http://www.s3-audio-uploader.vercel.app/signup"}
+            >
+              Get Started Free
+            </button>
+            <a
+              href="#plans"
+              className={styles.secondaryButton}
+              onClick={(e) => {
+              e.preventDefault();
+              document.querySelector("#plans")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
               Compare Plans
             </a>
           </div>
