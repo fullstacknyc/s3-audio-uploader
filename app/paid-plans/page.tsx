@@ -43,7 +43,7 @@ const PlansPage = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ plan }),
+          body: JSON.stringify({ plan, email: user.email }),
         });
 
         // Check response status

@@ -200,7 +200,7 @@ function SignupContent() {
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ plan: planParam }),
+              body: JSON.stringify({ plan: planParam, email: verificationEmail }),
             }
           );
 

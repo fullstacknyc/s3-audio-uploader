@@ -34,11 +34,10 @@ export async function POST(request: Request) {
     }
 
     // Verify token and extract user ID and email
-    let userId, userEmail;
+    let userId;
     try {
       const payload = jose.decodeJwt(token);
       userId = payload.sub;
-      userEmail = payload.email as string;
 
       if (!userId) {
         throw new Error("User ID not found in token");
@@ -52,7 +51,7 @@ export async function POST(request: Request) {
     }
 
     // Parse request body
-    const { plan } = await request.json();
+    const { plan, email } = await request.json();
 
     // Validate plan
     if (!plan || !["pro", "studio"].includes(plan.toLowerCase())) {
@@ -86,7 +85,7 @@ export async function POST(request: Request) {
       success_url: `${baseUrl}/payment-success?plan=${plan}&session_id=${sessionId}`,
       cancel_url: `${baseUrl}/paid-plans?cancel=true`,
       client_reference_id: userId as string,
-      customer_email: userEmail,
+      customer_email: email,
       metadata: {
         userId: userId as string,
         plan,
