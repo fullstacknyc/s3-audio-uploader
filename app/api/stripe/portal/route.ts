@@ -86,8 +86,11 @@ export async function GET(request: Request) {
       return_url: returnUrl,
     });
 
-    // Redirect to the portal URL
-    return NextResponse.redirect(portalSession.url);
+    // Always return the portal URL in JSON format
+    return NextResponse.json({
+      success: true,
+      url: portalSession.url,
+    });
   } catch (error) {
     console.error("Error creating portal session:", error);
 

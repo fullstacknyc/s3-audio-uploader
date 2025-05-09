@@ -62,6 +62,9 @@ export default function DashboardPage() {
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  // Stripe portal state
+  const [isLoadingPortal, setIsLoadingPortal] = useState(false);
+
   // Fetch dashboard data when component mounts
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -152,6 +155,39 @@ export default function DashboardPage() {
       );
     } finally {
       setIsDeletingFile(false);
+    }
+  };
+
+  // Handle Stripe customer portal redirection
+  const handleManageSubscription = async () => {
+    try {
+      setIsLoadingPortal(true);
+
+      // Call the API to get the portal URL
+      const response = await fetch(
+        `/api/stripe/portal?return_url=${encodeURIComponent(
+          window.location.href
+        )}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to get customer portal link");
+      }
+
+      // Parse the JSON response
+      const data = await response.json();
+
+      if (data.success && data.url) {
+        // Redirect to the Stripe portal URL
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.message || "Failed to get portal URL");
+      }
+    } catch (err) {
+      console.error("Portal redirect error:", err);
+      alert("Failed to open customer portal. Please try again later.");
+    } finally {
+      setIsLoadingPortal(false);
     }
   };
 
@@ -263,14 +299,13 @@ export default function DashboardPage() {
                 Upgrade Plan
               </Link>
             ) : (
-              <Link
-                href={`/api/stripe/portal?return_url=${encodeURIComponent(
-                  window.location.href
-                )}`}
+              <button
+                onClick={handleManageSubscription}
                 className={styles.manageButton}
+                disabled={isLoadingPortal}
               >
-                Manage Subscription
-              </Link>
+                {isLoadingPortal ? "Loading..." : "Manage Subscription"}
+              </button>
             )}
           </div>
         </div>
