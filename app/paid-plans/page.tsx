@@ -307,12 +307,8 @@ const PlansPage = () => {
               Get Started Free
             </button>
             <a
-              href="#plans"
+              href="https://billing.stripe.com/p/login/aEUaIq8eS9OmaLmdQQ"
               className={styles.secondaryButton}
-              onClick={(e) => {
-              e.preventDefault();
-              document.querySelector("#plans")?.scrollIntoView({ behavior: "smooth" });
-              }}
             >
               Compare Plans
             </a>
