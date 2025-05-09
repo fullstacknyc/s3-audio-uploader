@@ -58,39 +58,44 @@ const PlansPage = () => {
             {/* Free Plan */}
             <div className={styles.planCard}>
               <div className={styles.planHeader}>
-                <h3>Free</h3>
-                <p className={styles.price}>
-                  $0<span>/month</span>
-                </p>
+              <h3>Free</h3>
+              <p className={styles.price}>
+                $0<span>/month</span>
+              </p>
               </div>
               <div className={styles.planFeatures}>
-                <p className={styles.planDescription}>
-                  Perfect for hobbyists or those just getting started
-                </p>
-                <ul>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>5GB secure cloud storage</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>MP3 & WAV format support</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>Basic file organization</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>Standard download speeds</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>Community forum support</span>
-                  </li>
-                </ul>
+              <p className={styles.planDescription}>
+                Perfect for hobbyists or those just getting started
+              </p>
+              <ul>
+                <li>
+                <FiCheckCircle className={styles.icon} />
+                <span>5GB secure cloud storage</span>
+                </li>
+                <li>
+                <FiCheckCircle className={styles.icon} />
+                <span>MP3 & WAV format support</span>
+                </li>
+                <li>
+                <FiCheckCircle className={styles.icon} />
+                <span>Basic file organization</span>
+                </li>
+                <li>
+                <FiCheckCircle className={styles.icon} />
+                <span>Standard download speeds</span>
+                </li>
+                <li>
+                <FiCheckCircle className={styles.icon} />
+                <span>Community forum support</span>
+                </li>
+              </ul>
               </div>
-              <button className={styles.planButton}>Get Started Free</button>
+              <button
+              className={styles.planButton}
+              onClick={() => window.location.href = "http://www.s3-audio-uploader.vercel.app/signup"}
+              >
+              Get Started Free
+              </button>
             </div>
 
             {/* Pro Plan */}
