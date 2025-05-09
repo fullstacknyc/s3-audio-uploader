@@ -302,7 +302,7 @@ const PlansPage = () => {
           <div className={styles.ctaButtons}>
             <button
               className={styles.primaryButton}
-              onClick={() => window.location.href = "http://www.s3-audio-uploader.vercel.app/signup"}
+              onClick={() => window.location.href = "https://s3-audio-uploader.vercel.app/signup"}
             >
               Get Started Free
             </button>
