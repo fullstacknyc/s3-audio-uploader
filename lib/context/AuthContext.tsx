@@ -34,31 +34,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [refreshTokenValue, setRefreshTokenValue] = useState<string | null>(
-    null
-  );
-
-  // Store refresh token in session storage for persistence
-  // (we can't use cookies for this since it's client-side and we need it accessible)
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Load refresh token from session storage on mount
-      const storedRefreshToken = sessionStorage.getItem(
-        "audiocloud_refresh_token"
-      );
-      if (storedRefreshToken) {
-        setRefreshTokenValue(storedRefreshToken);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && refreshTokenValue) {
-      sessionStorage.setItem("audiocloud_refresh_token", refreshTokenValue);
-    } else if (typeof window !== "undefined" && refreshTokenValue === null) {
-      sessionStorage.removeItem("audiocloud_refresh_token");
-    }
-  }, [refreshTokenValue]);
 
   // Shared function to update auth state from API response
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,7 +49,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Function to refresh the auth token
   const refreshToken = async (): Promise<boolean> => {
-    if (!refreshTokenValue) {
+    // Get the current refresh token value directly from sessionStorage
+    // This ensures we always use the latest value, not the one captured in the closure
+    const currentRefreshToken =
+      typeof window !== "undefined"
+        ? sessionStorage.getItem("audiocloud_refresh_token")
+        : null;
+
+    if (!currentRefreshToken) {
       return false;
     }
 
@@ -82,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch("/api/auth/refresh", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refreshToken: refreshTokenValue }),
+        body: JSON.stringify({ refreshToken: currentRefreshToken }),
       });
 
       if (!response.ok) {
@@ -111,9 +93,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch("/api/auth/status");
       const data = await response.json();
 
+      const currentRefreshToken =
+        typeof window !== "undefined"
+          ? sessionStorage.getItem("audiocloud_refresh_token")
+          : null;
+
       if (data.authenticated && data.user) {
         updateAuthState(data);
-      } else if (refreshTokenValue) {
+      } else if (currentRefreshToken) {
         // If status check fails but we have a refresh token, try to refresh
         const refreshSuccessful = await refreshToken();
 
@@ -121,7 +108,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // If refresh failed too, clear auth state
           setUser(null);
           setIsAuthenticated(false);
-          setRefreshTokenValue(null);
+
+          // Also clear from sessionStorage directly
+          if (typeof window !== "undefined") {
+            sessionStorage.removeItem("audiocloud_refresh_token");
+          }
         }
       } else {
         // No refresh token or status check failed
@@ -162,7 +153,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Store the refresh token
       if (data.refreshToken) {
-        setRefreshTokenValue(data.refreshToken);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("audiocloud_refresh_token", data.refreshToken);
+        }
       }
 
       // If login response includes user data, use it directly
@@ -195,7 +188,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(null);
       setIsAuthenticated(false);
-      setRefreshTokenValue(null);
+
+      // Also clear directly from sessionStorage
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("audiocloud_refresh_token");
+      }
     } catch (error) {
       console.error("Logout error:", error);
       throw error;

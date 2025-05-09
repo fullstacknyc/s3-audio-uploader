@@ -69,8 +69,6 @@ export async function GET() {
 
     // Check if token is expired before making the API call
     if (isTokenExpired(token)) {
-      console.log("Token is expired, clearing cookie");
-      cookieStore.delete(COOKIE_NAME);
       return NextResponse.json(
         {
           authenticated: false,
