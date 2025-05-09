@@ -9,13 +9,21 @@ interface User {
   tier: string;
 }
 
+interface SignupResult {
+  userId: string;
+}
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  signup: (
+    name: string,
+    email: string,
+    password: string
+  ) => Promise<SignupResult | undefined>;
   refreshAuthState: () => Promise<void>;
   refreshToken: () => Promise<boolean>;
 }
@@ -197,7 +205,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Signup function
-  const signup = async (name: string, email: string, password: string) => {
+  const signup = async (
+    name: string,
+    email: string,
+    password: string
+  ): Promise<SignupResult | undefined> => {
     setIsLoading(true);
 
     try {
@@ -213,8 +225,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(data.message || "Signup failed");
       }
 
-      // Don't automatically log the user in after signup
-      // They need to verify their email first
+      // Return the user ID if available
+      if (data.userId) {
+        return { userId: data.userId };
+      }
+
+      return undefined;
     } catch (error) {
       throw error;
     } finally {

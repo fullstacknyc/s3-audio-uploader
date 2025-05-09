@@ -1,3 +1,4 @@
+// app/api/auth/signup/route.ts
 import { NextResponse } from "next/server";
 import {
   CognitoIdentityProviderClient,
@@ -123,7 +124,7 @@ export async function POST(request: Request) {
           success: true,
           message:
             "User registered successfully. Please check your email to verify your account.",
-          userId,
+          userId, // Return the userId to the client
         },
         { status: 201 }
       );

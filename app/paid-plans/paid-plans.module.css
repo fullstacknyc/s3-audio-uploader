@@ -273,6 +273,46 @@
   background-color: color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
+/* Add these styles to app/paid-plans/paid-plans.module.css */
+
+.processingButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.spinnerIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.errorAlert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 auto 2rem;
+  padding: 1rem 1.5rem;
+  max-width: 800px;
+  background-color: var(--error-bg);
+  border: 1px solid var(--error);
+  border-radius: var(--radius);
+  color: var(--error);
+}
+
+.alertIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
   .plansContainer,
   .featuresGrid,

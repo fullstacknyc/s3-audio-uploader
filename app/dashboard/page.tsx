@@ -258,9 +258,18 @@ export default function DashboardPage() {
             <p className={styles.statValue}>
               {userTier.charAt(0).toUpperCase() + userTier.slice(1)} Plan
             </p>
-            {userTier === "free" && (
+            {userTier === "free" ? (
               <Link href="/paid-plans" className={styles.upgradeButton}>
                 Upgrade Plan
+              </Link>
+            ) : (
+              <Link
+                href={`/api/stripe/portal?return_url=${encodeURIComponent(
+                  window.location.href
+                )}`}
+                className={styles.manageButton}
+              >
+                Manage Subscription
               </Link>
             )}
           </div>

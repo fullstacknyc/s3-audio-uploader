@@ -1,71 +1,80 @@
 "use client";
 
+import { useState } from "react";
 import {
   FiCheckCircle,
   FiHelpCircle,
   FiMusic,
   FiShield,
   FiUsers,
+  FiLoader,
+  FiAlertCircle,
 } from "react-icons/fi";
 import styles from "./paid-plans.module.css";
 import { PLAN_FEATURES, PLAN_PRICES } from "@/lib/constants/plans";
 import { useAuth } from "@/lib/context/AuthContext";
 
-// Stripe product URLs
-const STRIPE_PRO_BASE_URL =
-  process.env.NEXT_PUBLIC_STRIPE_PRO_URL ||
-  "https://buy.stripe.com/3cs3fYc7d18M7ao9AC";
-const STRIPE_STUDIO_BASE_URL =
-  process.env.NEXT_PUBLIC_STRIPE_STUDIO_URL ||
-  "https://buy.stripe.com/3cscQyb392cQ0M04gj";
+// Billing portal URL
 const STRIPE_BILLING_URL =
   process.env.NEXT_PUBLIC_STRIPE_BILLING_URL ||
   "https://billing.stripe.com/p/login/aEUaIq8eS9OmaLmdQQ";
 
-// Base URL for the application
-const BASE_URL =
-  process.env.NEXT_PUBLIC_FRONTEND_URL ||
-  "https://s3-audio-uploader.vercel.app";
-
-// Function to construct Stripe URLs with success and cancel redirect URLs
-const getStripeUrl = (baseUrl: string, plan: string) => {
-  // Create a session ID that will help with verification later
-  const sessionId = `session_${Date.now()}_${Math.random()
-    .toString(36)
-    .substring(2, 10)}`;
-
-  // Full success URL with plan and session ID parameters
-  const successUrl = `${BASE_URL}/payment-success?plan=${plan}&session_id=${sessionId}`;
-
-  // Cancel URL in case user abandons checkout
-  const cancelUrl = `${BASE_URL}/paid-plans?cancel=true`;
-
-  // Check if the base URL already has query parameters
-  const separator = baseUrl.includes("?") ? "&" : "?";
-
-  // Construct full URL with encoded success_url and cancel_url parameters
-  return `${baseUrl}${separator}success_url=${encodeURIComponent(
-    successUrl
-  )}&cancel_url=${encodeURIComponent(
-    cancelUrl
-  )}&client_reference_id=${sessionId}`;
-};
-
 const PlansPage = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingPlan, setProcessingPlan] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   // Function to handle premium plan selection
-  const handlePlanSelection = (plan: "pro" | "studio") => {
-    // Check if user is logged in
-    if (isAuthenticated) {
-      // If logged in, redirect to Stripe checkout with success_url
-      const stripeUrl =
-        plan === "pro"
-          ? getStripeUrl(STRIPE_PRO_BASE_URL, "pro")
-          : getStripeUrl(STRIPE_STUDIO_BASE_URL, "studio");
-      window.location.href = stripeUrl;
-    } else {
-      // If not logged in, redirect to signup page with plan parameter
-      window.location.href = `/signup?plan=${plan}`;
+  const handlePlanSelection = async (plan: "pro" | "studio") => {
+    // Reset error state
+    setError(null);
+
+    // Set processing state with the selected plan
+    setIsProcessing(true);
+    setProcessingPlan(plan);
+
+    try {
+      // Check if user is logged in
+      if (isAuthenticated && user) {
+        // Create a payment link via our API
+        const response = await fetch("/api/stripe/create-payment-link", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ plan }),
+        });
+
+        // Check response status
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to create payment link");
+        }
+
+        // Get the checkout URL from the response
+        const data = await response.json();
+
+        if (data.success && data.checkoutUrl) {
+          // Redirect to the Stripe checkout page
+          window.location.href = data.checkoutUrl;
+        } else {
+          throw new Error("No checkout URL received");
+        }
+      } else {
+        // If not logged in, redirect to signup page with plan parameter
+        window.location.href = `/signup?plan=${plan}`;
+      }
+    } catch (error) {
+      console.error("Error handling plan selection:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred. Please try again."
+      );
+      // Reset processing state
+      setIsProcessing(false);
+      setProcessingPlan(null);
     }
   };
 
@@ -77,6 +86,13 @@ const PlansPage = () => {
           Secure, reliable audio storage built for musicians
         </p>
       </header>
+
+      {error && (
+        <div className={styles.errorAlert}>
+          <FiAlertCircle className={styles.alertIcon} />
+          <p>{error}</p>
+        </div>
+      )}
 
       <main className={styles.main}>
         <section className={styles.valueProposition}>
@@ -170,8 +186,16 @@ const PlansPage = () => {
               <button
                 className={`${styles.planButton} ${styles.pro}`}
                 onClick={() => handlePlanSelection("pro")}
+                disabled={isProcessing}
               >
-                Start 14-Day Free Trial
+                {isProcessing && processingPlan === "pro" ? (
+                  <span className={styles.processingButton}>
+                    <FiLoader className={styles.spinnerIcon} />
+                    Processing...
+                  </span>
+                ) : (
+                  "Start 14-Day Free Trial"
+                )}
               </button>
             </div>
 
@@ -200,8 +224,16 @@ const PlansPage = () => {
               <button
                 className={styles.planButton}
                 onClick={() => handlePlanSelection("studio")}
+                disabled={isProcessing}
               >
-                Start 14-Day Free Trial
+                {isProcessing && processingPlan === "studio" ? (
+                  <span className={styles.processingButton}>
+                    <FiLoader className={styles.spinnerIcon} />
+                    Processing...
+                  </span>
+                ) : (
+                  "Start 14-Day Free Trial"
+                )}
               </button>
             </div>
           </div>

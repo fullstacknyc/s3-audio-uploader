@@ -1,15 +1,42 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { FiUser, FiMail, FiLock, FiAlertCircle, FiCheck } from "react-icons/fi";
+import {
+  FiUser,
+  FiMail,
+  FiLock,
+  FiAlertCircle,
+  FiCheck,
+  FiLoader,
+} from "react-icons/fi";
 import styles from "./auth.module.css";
 import { useAuth } from "@/lib/context/AuthContext";
 
-export default function SignupPage() {
+// Create a loading component for Suspense fallback
+function SignupLoading() {
+  return (
+    <div className={styles.container}>
+      <div className={styles.formContainer}>
+        <div className={styles.loadingContainer}>
+          <FiLoader className={styles.loadingSpinner} />
+          <h2>Loading Signup Form...</h2>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main component that uses search params
+function SignupContent() {
   const router = useRouter();
-  const { signup } = useAuth();
+  const searchParams = useSearchParams();
+  const { signup, isAuthenticated } = useAuth();
+
+  // Get plan from URL if available
+  const planParam = searchParams.get("plan");
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,6 +52,15 @@ export default function SignupPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState("");
   const [verificationSuccess, setVerificationSuccess] = useState(false);
+  const [registeredUserId, setRegisteredUserId] = useState<string | null>(null);
+  const [redirectingToStripe, setRedirectingToStripe] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -70,7 +106,16 @@ export default function SignupPage() {
 
     try {
       // Use the signup function from useAuth hook
-      await signup(formData.name, formData.email, formData.password);
+      const result = await signup(
+        formData.name,
+        formData.email,
+        formData.password
+      );
+
+      // Store the userId for later use with Stripe checkout
+      if (result?.userId) {
+        setRegisteredUserId(result.userId);
+      }
 
       // Store email for verification phase
       setVerificationEmail(formData.email);
@@ -94,7 +139,9 @@ export default function SignupPage() {
     setVerificationError("");
 
     if (!verificationCode) {
-      setVerificationError("Please enter the verification code");
+      setVerificationError(
+        "Please enter the verification code from your email"
+      );
       return;
     }
 
@@ -119,7 +166,67 @@ export default function SignupPage() {
       // Show success message
       setVerificationSuccess(true);
 
-      // Redirect to login after a delay
+      // If a plan was selected and we have the user ID, redirect to Stripe checkout
+      if (
+        planParam &&
+        registeredUserId &&
+        ["pro", "studio"].includes(planParam)
+      ) {
+        setRedirectingToStripe(true);
+
+        try {
+          // First attempt to login with the new credentials
+          const loginResponse = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: verificationEmail,
+              password: formData.password,
+            }),
+          });
+
+          if (!loginResponse.ok) {
+            throw new Error("Login failed after email verification");
+          }
+
+          // Wait a moment for the session to be fully established
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+
+          // Now create a payment link
+          const paymentLinkResponse = await fetch(
+            "/api/stripe/create-payment-link",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ plan: planParam }),
+            }
+          );
+
+          if (!paymentLinkResponse.ok) {
+            throw new Error("Failed to create payment link");
+          }
+
+          const paymentLinkData = await paymentLinkResponse.json();
+
+          if (paymentLinkData.success && paymentLinkData.checkoutUrl) {
+            // Redirect after a delay
+            setTimeout(() => {
+              window.location.href = paymentLinkData.checkoutUrl;
+            }, 2000);
+
+            return;
+          } else {
+            throw new Error("No checkout URL received");
+          }
+        } catch (error) {
+          console.error("Error with payment process:", error);
+          // Continue with normal login redirect if payment process fails
+        }
+      }
+
+      // Redirect to login after a delay if not going to Stripe
       setTimeout(() => {
         router.push("/login");
       }, 3000);
@@ -168,82 +275,95 @@ export default function SignupPage() {
     }
   };
 
-  // Verification code view
+  // Final success screen after reset is complete
+  if (verificationSuccess) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.formContainer}>
+          <div className={styles.successContainer}>
+            <div className={styles.successIcon}>
+              <FiCheck />
+            </div>
+            <h2 className={styles.successTitle}>Account Verified!</h2>
+            <p className={styles.successMessage}>
+              Your email has been verified successfully.
+              {redirectingToStripe
+                ? "You'll now be redirected to complete your plan subscription."
+                : "You can now log in to your account."}
+            </p>
+            <p className={styles.successHint}>
+              {redirectingToStripe
+                ? "Redirecting to checkout page..."
+                : "Redirecting to login page..."}
+            </p>
+            {!redirectingToStripe && (
+              <Link href="/login" className={styles.backToLogin}>
+                Go to Login
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Initial success screen with reset form
   if (verificationSent) {
     return (
       <div className={styles.container}>
         <div className={styles.formContainer}>
-          {verificationSuccess ? (
-            <div className={styles.successContainer}>
-              <div className={styles.successIcon}>
-                <FiCheck />
-              </div>
-              <h2 className={styles.successTitle}>Account Verified!</h2>
-              <p className={styles.successMessage}>
-                Your email has been verified successfully. You can now log in to
-                your account.
-              </p>
-              <p className={styles.successHint}>Redirecting to login page...</p>
-              <Link href="/login" className={styles.backToLogin}>
-                Go to Login
-              </Link>
+          <h1 className={styles.title}>Verify Your Email</h1>
+          <p className={styles.subtitle}>
+            {"We've sent a verification code to "}
+            <strong>{verificationEmail}</strong>. Please check your email and
+            enter the code below.
+          </p>
+
+          {verificationError && (
+            <div className={styles.errorAlert}>
+              <FiAlertCircle />
+              <span>{verificationError}</span>
             </div>
-          ) : (
-            <>
-              <h1 className={styles.title}>Verify Your Email</h1>
-              <p className={styles.subtitle}>
-                {"We've sent a verification code to "}
-                <strong>{verificationEmail}</strong>. Please check your email
-                and enter the code below.
-              </p>
-
-              {verificationError && (
-                <div className={styles.errorAlert}>
-                  <FiAlertCircle />
-                  <span>{verificationError}</span>
-                </div>
-              )}
-
-              <form onSubmit={handleVerificationSubmit} className={styles.form}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="verificationCode" className={styles.label}>
-                    Verification Code
-                  </label>
-                  <input
-                    type="text"
-                    id="verificationCode"
-                    value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value)}
-                    className={styles.input}
-                    placeholder="Enter 6-digit code"
-                    autoComplete="one-time-code"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className={styles.submitButton}
-                  disabled={isVerifying}
-                >
-                  {isVerifying ? "Verifying..." : "Verify Account"}
-                </button>
-              </form>
-
-              <div className={styles.helperLinks}>
-                <button
-                  onClick={handleResendCode}
-                  className={styles.textLink}
-                  disabled={isVerifying}
-                >
-                  Resend verification code
-                </button>
-                <span className={styles.dividerDot}>•</span>
-                <Link href="/login" className={styles.textLink}>
-                  Back to login
-                </Link>
-              </div>
-            </>
           )}
+
+          <form onSubmit={handleVerificationSubmit} className={styles.form}>
+            <div className={styles.formGroup}>
+              <label htmlFor="verificationCode" className={styles.label}>
+                Verification Code
+              </label>
+              <input
+                type="text"
+                id="verificationCode"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                className={styles.input}
+                placeholder="Enter 6-digit code"
+                autoComplete="one-time-code"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className={styles.submitButton}
+              disabled={isVerifying}
+            >
+              {isVerifying ? "Verifying..." : "Verify Account"}
+            </button>
+          </form>
+
+          <div className={styles.helperLinks}>
+            <button
+              onClick={handleResendCode}
+              className={styles.textLink}
+              disabled={isVerifying}
+            >
+              Resend verification code
+            </button>
+            <span className={styles.dividerDot}>•</span>
+            <Link href="/login" className={styles.textLink}>
+              Back to login
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -256,6 +376,14 @@ export default function SignupPage() {
         <h1 className={styles.title}>Create Your Account</h1>
         <p className={styles.subtitle}>
           Join AudioCloud to store and share your audio files securely
+          {planParam && ["pro", "studio"].includes(planParam) && (
+            <>
+              {" "}
+              with the {planParam.charAt(0).toUpperCase() +
+                planParam.slice(1)}{" "}
+              plan
+            </>
+          )}
         </p>
 
         {generalError && (
@@ -387,5 +515,14 @@ export default function SignupPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+// Main component that wraps the content in Suspense
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<SignupLoading />}>
+      <SignupContent />
+    </Suspense>
   );
 }

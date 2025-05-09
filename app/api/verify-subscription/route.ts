@@ -1,3 +1,4 @@
+// app/api/verify-subscription/route.ts
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import * as jose from "jose";
@@ -8,6 +9,7 @@ import {
   DynamoDBDocumentClient,
 } from "@aws-sdk/lib-dynamodb";
 import Stripe from "stripe";
+import { verifyStripeSessionOwnership } from "@/lib/utils/stripeSessions";
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -175,39 +177,6 @@ async function checkCheckoutSession(sessionId: string) {
   }
 }
 
-// Verify that the session belongs to the current user
-async function verifySessionOwnership(sessionId: string, userId: string) {
-  try {
-    // Check if this session ID is stored in our DB and associated with this user
-    const sessionResult = await ddbDocClient.send(
-      new GetCommand({
-        TableName: process.env.DYNAMODB_SESSIONS_TABLE || "sessions",
-        Key: { sessionId },
-      })
-    );
-
-    if (sessionResult.Item && sessionResult.Item.userId === userId) {
-      return true;
-    }
-
-    // If not found in our DB, check directly with Stripe if possible
-    if (sessionId.startsWith("cs_")) {
-      try {
-        const session = await stripe.checkout.sessions.retrieve(sessionId);
-        // If the client_reference_id matches our user ID, it's valid
-        return session.client_reference_id === userId;
-      } catch {
-        return false;
-      }
-    }
-
-    return false;
-  } catch (error) {
-    console.error("Error verifying session ownership:", error);
-    return false;
-  }
-}
-
 export async function GET(request: Request) {
   try {
     // Get the session ID and plan from the URL parameters
@@ -252,12 +221,38 @@ export async function GET(request: Request) {
     }
 
     // Verify that this session belongs to the current user for security
-    const isValidSession = await verifySessionOwnership(sessionId, userId);
+    // First, check our session storage
+    const isValidSession = await verifyStripeSessionOwnership(
+      sessionId,
+      userId
+    );
+
+    // If not in our session storage and not a client-generated session ID, check with Stripe
     if (!isValidSession && !sessionId.startsWith("session_")) {
-      return NextResponse.json(
-        { success: false, message: "Invalid session" },
-        { status: 403 }
-      );
+      if (sessionId.startsWith("cs_")) {
+        try {
+          const session = await stripe.checkout.sessions.retrieve(sessionId);
+          // If the client_reference_id doesn't match our user ID, it's not valid
+          if (session.client_reference_id !== userId) {
+            return NextResponse.json(
+              { success: false, message: "Invalid session" },
+              { status: 403 }
+            );
+          }
+        } catch (error) {
+          console.error("Error verifying Stripe session:", error);
+          return NextResponse.json(
+            { success: false, message: "Invalid session" },
+            { status: 403 }
+          );
+        }
+      } else {
+        // Unknown session ID format
+        return NextResponse.json(
+          { success: false, message: "Invalid session format" },
+          { status: 403 }
+        );
+      }
     }
 
     // Check if this is a Stripe Checkout Session ID

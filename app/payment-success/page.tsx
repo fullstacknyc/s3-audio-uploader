@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   FiCheckCircle,
@@ -22,7 +22,8 @@ interface VerificationResponse {
   customerPortalUrl?: string;
 }
 
-export default function PaymentSuccessPage() {
+// Create a separate component that uses useSearchParams
+function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user, refreshAuthState } = useAuth();
@@ -215,7 +216,7 @@ export default function PaymentSuccessPage() {
               </>
             ) : plan === "studio" ? (
               <>
-                {PLAN_FEATURES.pro.map((feature, index) => (
+                {PLAN_FEATURES.studio.map((feature, index) => (
                   <li key={index}>{feature}</li>
                 ))}
               </>
@@ -251,5 +252,31 @@ export default function PaymentSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Fallback for Suspense
+function PaymentSuccessLoading() {
+  return (
+    <div className={styles.container}>
+      <div className={styles.loadingCard}>
+        <div className={styles.loadingSpinner}>
+          <FiLoader className={styles.spinnerIcon} />
+        </div>
+        <h1>Loading Payment Information</h1>
+        <p className={styles.message}>
+          Please wait while we retrieve your subscription details...
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Main component that wraps the content in Suspense
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<PaymentSuccessLoading />}>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }
