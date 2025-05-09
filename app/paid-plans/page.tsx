@@ -8,8 +8,67 @@ import {
   FiUsers,
 } from "react-icons/fi";
 import styles from "./paid-plans.module.css";
+import { PLAN_FEATURES, PLAN_PRICES } from "@/lib/constants/plans";
+import { useAuth } from "@/lib/context/AuthContext";
+
+// Stripe product URLs
+const STRIPE_PRO_BASE_URL =
+  process.env.NEXT_PUBLIC_STRIPE_PRO_URL ||
+  "https://buy.stripe.com/3cs3fYc7d18M7ao9AC";
+const STRIPE_STUDIO_BASE_URL =
+  process.env.NEXT_PUBLIC_STRIPE_STUDIO_URL ||
+  "https://buy.stripe.com/3cscQyb392cQ0M04gj";
+const STRIPE_BILLING_URL =
+  process.env.NEXT_PUBLIC_STRIPE_BILLING_URL ||
+  "https://billing.stripe.com/p/login/aEUaIq8eS9OmaLmdQQ";
+
+// Base URL for the application
+const BASE_URL =
+  process.env.NEXT_PUBLIC_FRONTEND_URL ||
+  "https://s3-audio-uploader.vercel.app";
+
+// Function to construct Stripe URLs with success and cancel redirect URLs
+const getStripeUrl = (baseUrl: string, plan: string) => {
+  // Create a session ID that will help with verification later
+  const sessionId = `session_${Date.now()}_${Math.random()
+    .toString(36)
+    .substring(2, 10)}`;
+
+  // Full success URL with plan and session ID parameters
+  const successUrl = `${BASE_URL}/payment-success?plan=${plan}&session_id=${sessionId}`;
+
+  // Cancel URL in case user abandons checkout
+  const cancelUrl = `${BASE_URL}/paid-plans?cancel=true`;
+
+  // Check if the base URL already has query parameters
+  const separator = baseUrl.includes("?") ? "&" : "?";
+
+  // Construct full URL with encoded success_url and cancel_url parameters
+  return `${baseUrl}${separator}success_url=${encodeURIComponent(
+    successUrl
+  )}&cancel_url=${encodeURIComponent(
+    cancelUrl
+  )}&client_reference_id=${sessionId}`;
+};
 
 const PlansPage = () => {
+  const { isAuthenticated } = useAuth();
+  // Function to handle premium plan selection
+  const handlePlanSelection = (plan: "pro" | "studio") => {
+    // Check if user is logged in
+    if (isAuthenticated) {
+      // If logged in, redirect to Stripe checkout with success_url
+      const stripeUrl =
+        plan === "pro"
+          ? getStripeUrl(STRIPE_PRO_BASE_URL, "pro")
+          : getStripeUrl(STRIPE_STUDIO_BASE_URL, "studio");
+      window.location.href = stripeUrl;
+    } else {
+      // If not logged in, redirect to signup page with plan parameter
+      window.location.href = `/signup?plan=${plan}`;
+    }
+  };
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -58,43 +117,30 @@ const PlansPage = () => {
             {/* Free Plan */}
             <div className={styles.planCard}>
               <div className={styles.planHeader}>
-              <h3>Free</h3>
-              <p className={styles.price}>
-                $0<span>/month</span>
-              </p>
+                <h3>Free</h3>
+                <p className={styles.price}>
+                  ${PLAN_PRICES.free}
+                  <span>/month</span>
+                </p>
               </div>
               <div className={styles.planFeatures}>
-              <p className={styles.planDescription}>
-                Perfect for hobbyists or those just getting started
-              </p>
-              <ul>
-                <li>
-                <FiCheckCircle className={styles.icon} />
-                <span>5GB secure cloud storage</span>
-                </li>
-                <li>
-                <FiCheckCircle className={styles.icon} />
-                <span>MP3 & WAV format support</span>
-                </li>
-                <li>
-                <FiCheckCircle className={styles.icon} />
-                <span>Basic file organization</span>
-                </li>
-                <li>
-                <FiCheckCircle className={styles.icon} />
-                <span>Standard download speeds</span>
-                </li>
-                <li>
-                <FiCheckCircle className={styles.icon} />
-                <span>Community forum support</span>
-                </li>
-              </ul>
+                <p className={styles.planDescription}>
+                  Perfect for hobbyists or those just getting started
+                </p>
+                <ul>
+                  {PLAN_FEATURES.free.map((feature, index) => (
+                    <li key={index}>
+                      <FiCheckCircle className={styles.icon} />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
               <button
-              className={styles.planButton}
-              onClick={() => window.location.href = "http://www.s3-audio-uploader.vercel.app/signup"}
+                className={styles.planButton}
+                onClick={() => (window.location.href = "/signup")}
               >
-              Get Started Free
+                Get Started Free
               </button>
             </div>
 
@@ -104,7 +150,8 @@ const PlansPage = () => {
                 <h3>Pro</h3>
                 <div className={styles.tag}>Most Popular</div>
                 <p className={styles.price}>
-                  $12.99<span>/month</span>
+                  ${PLAN_PRICES.pro}
+                  <span>/month</span>
                 </p>
               </div>
               <div className={styles.planFeatures}>
@@ -112,38 +159,20 @@ const PlansPage = () => {
                   For serious musicians and producers
                 </p>
                 <ul>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>100GB secure cloud storage</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>All audio format support including FLAC, AIFF</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>Advanced file organization with tags</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>Unlimited file sharing with access controls</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>Priority email support</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>Automatic backups</span>
-                  </li>
+                  {PLAN_FEATURES.pro.map((feature, index) => (
+                    <li key={index}>
+                      <FiCheckCircle className={styles.icon} />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
-                <button
+              <button
                 className={`${styles.planButton} ${styles.pro}`}
-                onClick={() => window.location.href = "https://buy.stripe.com/3cs3fYc7d18M7ao9AC"}
-                >
+                onClick={() => handlePlanSelection("pro")}
+              >
                 Start 14-Day Free Trial
-                </button>
+              </button>
             </div>
 
             {/* Studio Plan */}
@@ -151,7 +180,8 @@ const PlansPage = () => {
               <div className={styles.planHeader}>
                 <h3>Studio</h3>
                 <p className={styles.price}>
-                  $29.99<span>/month</span>
+                  ${PLAN_PRICES.studio}
+                  <span>/month</span>
                 </p>
               </div>
               <div className={styles.planFeatures}>
@@ -159,42 +189,20 @@ const PlansPage = () => {
                   Professional solution for studios and production teams
                 </p>
                 <ul>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>1TB secure cloud storage</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>All audio formats with lossless streaming</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>Advanced file organization with custom metadata</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>Team collaboration tools and permissions</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>Priority 24/7 support</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>Automatic backups with version history</span>
-                  </li>
-                  <li>
-                    <FiCheckCircle className={styles.icon} />
-                    <span>API access for custom integrations</span>
-                  </li>
+                  {PLAN_FEATURES.studio.map((feature, index) => (
+                    <li key={index}>
+                      <FiCheckCircle className={styles.icon} />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
-                <button
+              <button
                 className={styles.planButton}
-                onClick={() => window.location.href = "https://buy.stripe.com/3cscQyb392cQ0M04gj"}
-                >
+                onClick={() => handlePlanSelection("studio")}
+              >
                 Start 14-Day Free Trial
-                </button>
+              </button>
             </div>
           </div>
         </section>
@@ -302,14 +310,11 @@ const PlansPage = () => {
           <div className={styles.ctaButtons}>
             <button
               className={styles.primaryButton}
-              onClick={() => window.location.href = "https://s3-audio-uploader.vercel.app/signup"}
+              onClick={() => (window.location.href = "/signup")}
             >
               Get Started Free
             </button>
-            <a
-              href="https://billing.stripe.com/p/login/aEUaIq8eS9OmaLmdQQ"
-              className={styles.secondaryButton}
-            >
+            <a href={STRIPE_BILLING_URL} className={styles.secondaryButton}>
               Compare Plans
             </a>
           </div>

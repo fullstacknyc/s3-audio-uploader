@@ -1,0 +1,269 @@
+/* app/payment-success/payment-success.module.css */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: var(--bg);
+}
+
+.successCard,
+.loadingCard,
+.errorCard {
+  max-width: 800px;
+  width: 100%;
+  background-color: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 3rem;
+  text-align: center;
+}
+
+.iconContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.successIcon {
+  width: 5rem;
+  height: 5rem;
+  color: var(--success);
+}
+
+.errorIcon {
+  width: 5rem;
+  height: 5rem;
+  color: var(--error);
+}
+
+.successCard h1,
+.loadingCard h1,
+.errorCard h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--text);
+}
+
+.message {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 2.5rem;
+}
+
+.subMessage {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  font-style: italic;
+}
+
+/* Plan details section */
+.planDetails {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: var(--bg-alt);
+  border-radius: var(--radius);
+  text-align: left;
+}
+
+.planDetail {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.planDetail:last-child {
+  border-bottom: none;
+}
+
+.detailLabel {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.detailValue {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.featuresContainer {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background-color: var(--bg-alt);
+  border-radius: var(--radius);
+  text-align: left;
+}
+
+.featuresContainer h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.featuresList {
+  padding-left: 1.5rem;
+}
+
+.featuresList li {
+  margin-bottom: 0.5rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.nextSteps {
+  text-align: left;
+}
+
+.nextSteps h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+
+.nextSteps p {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.primaryButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background-color: var(--primary);
+  color: white;
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.primaryButton:hover {
+  background-color: var(--primary-hover);
+}
+
+.secondaryButton {
+  padding: 0.875rem 1.5rem;
+  background-color: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.secondaryButton:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.manageSubscription {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.portalLink {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.portalLink:hover {
+  text-decoration: underline;
+}
+
+/* Loading state styles */
+.loadingSpinner {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.spinnerIcon {
+  width: 3rem;
+  height: 3rem;
+  color: var(--primary);
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.progressBar {
+  width: 100%;
+  height: 0.5rem;
+  background-color: var(--border);
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-top: 1.5rem;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: var(--primary);
+  border-radius: 9999px;
+  transition: width 0.5s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .successCard,
+  .loadingCard,
+  .errorCard {
+    padding: 2rem;
+  }
+
+  .successCard h1,
+  .loadingCard h1,
+  .errorCard h1 {
+    font-size: 2rem;
+  }
+
+  .buttons {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .successCard,
+  .loadingCard,
+  .errorCard {
+    padding: 1.5rem;
+  }
+
+  .successCard h1,
+  .loadingCard h1,
+  .errorCard h1 {
+    font-size: 1.75rem;
+  }
+
+  .message {
+    font-size: 1rem;
+  }
+}
