@@ -140,7 +140,7 @@ const PlansPage = () => {
               </div>
                 <button
                 className={`${styles.planButton} ${styles.pro}`}
-                onClick={() => window.location.href = "https://buy.stripe.com/28obMugntg3G8es6oo"}
+                onClick={() => window.location.href = "https://buy.stripe.com/3cs3fYc7d18M7ao9AC"}
                 >
                 Start 14-Day Free Trial
                 </button>
@@ -191,7 +191,7 @@ const PlansPage = () => {
               </div>
                 <button
                 className={styles.planButton}
-                onClick={() => window.location.href = "https://buy.stripe.com/4gw8Aifjp04I9iwaEF"}
+                onClick={() => window.location.href = "https://buy.stripe.com/3cscQyb392cQ0M04gj"}
                 >
                 Start 14-Day Free Trial
                 </button>
