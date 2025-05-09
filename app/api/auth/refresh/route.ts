@@ -7,6 +7,8 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider";
 import * as jose from "jose";
 import { calculateSecretHash } from "@/lib/utils/cognitoUtils";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
 // Initialize Cognito client
 const cognitoClient = new CognitoIdentityProviderClient({
@@ -16,6 +18,17 @@ const cognitoClient = new CognitoIdentityProviderClient({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
   },
 });
+
+// Initialize DynamoDB client
+const ddbClient = new DynamoDBClient({
+  region: process.env.AWS_REGION || "us-east-1",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+});
+
+const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 
 // Cookie settings
 const COOKIE_NAME = "audiocloud_auth";
@@ -103,6 +116,21 @@ export async function POST(request: Request) {
       path: "/",
     });
 
+    // Get additional user data from DynamoDB
+    let userData;
+    try {
+      const userResult = await ddbDocClient.send(
+        new GetCommand({
+          TableName: process.env.DYNAMODB_USERS_TABLE!,
+          Key: { userId: userId },
+        })
+      );
+      userData = userResult.Item;
+    } catch (error) {
+      console.error("Error fetching user data from DynamoDB:", error);
+      // Continue even if DynamoDB fetch fails
+    }
+
     return NextResponse.json(
       {
         success: true,
@@ -110,6 +138,7 @@ export async function POST(request: Request) {
           id: userId,
           name: userName,
           email: userEmail,
+          tier: userData?.tier || "free",
         },
       },
       { status: 200 }

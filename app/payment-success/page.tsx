@@ -104,7 +104,8 @@ function PaymentSuccessContent() {
     if (planParam && sessionId && pollCount < 6) {
       pollVerification();
     }
-  }, [searchParams, pollCount, refreshAuthState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, pollCount]);
 
   // Error state
   if (error) {
