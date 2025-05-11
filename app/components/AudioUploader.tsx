@@ -31,7 +31,7 @@ export default function AudioUploader() {
   const [error, setError] = useState("");
   const [shortUrl, setShortUrl] = useState("");
   const [isClient, setIsClient] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
+  const [, setRetryCount] = useState(0);
   const [adCompleted, setAdCompleted] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -58,6 +58,7 @@ export default function AudioUploader() {
         return;
       }
       setFile(selectedFile);
+      setRetryCount(0);
     },
     []
   );
