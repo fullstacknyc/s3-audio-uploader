@@ -47,7 +47,7 @@ const nextConfig = {
               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://challenges.cloudflare.com;
               img-src 'self' data: blob: https://ep1.adtrafficquality.google;
               font-src 'self' https://fonts.gstatic.com;
-              connect-src 'self' https://*.vercel.app https://www.google-analytics.com https://analytics.google.com https://challenges.cloudflare.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google;
+              connect-src 'self' https://*.vercel.app https://www.google-analytics.com https://analytics.google.com https://challenges.cloudflare.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://*.amazonaws.com;
               frame-src 'self' https://challenges.cloudflare.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://ep2.adtrafficquality.google https://google.com https://www.google.com;
             `.replace(/\s{2,}/g, ' ').trim(),
           }
