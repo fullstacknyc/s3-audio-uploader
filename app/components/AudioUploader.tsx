@@ -19,6 +19,7 @@ import {
   FiAlertCircle,
   FiCopy,
   FiDownload,
+  FiLoader,
 } from "react-icons/fi";
 import { getSupportedFormatLabels } from "@/lib/utils/audioFormatUtils";
 
@@ -32,6 +33,7 @@ export default function AudioUploader() {
   const [isClient, setIsClient] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [adCompleted, setAdCompleted] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,6 +67,7 @@ export default function AudioUploader() {
 
     setStatus("uploading");
     setError("");
+    setUploadProgress(0);
 
     try {
       // First get the presigned URL
@@ -85,16 +88,46 @@ export default function AudioUploader() {
 
       const { uploadUrl, downloadUrl, storageKey } = await res.json();
 
-      // Then upload the file directly to S3
-      const uploadResponse = await fetch(uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
+      // Then upload the file directly to S3 with XMLHttpRequest for progress tracking
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round(
+            (event.loaded / event.total) * 100
+          );
+          setUploadProgress(percentComplete);
+        }
       });
 
-      if (!uploadResponse.ok) {
-        throw new Error("Upload to storage failed");
-      }
+      xhr.addEventListener("error", () => {
+        throw new Error("Upload to storage failed: Network error");
+      });
+
+      xhr.addEventListener("abort", () => {
+        throw new Error("Upload was aborted");
+      });
+
+      // Wait for the request to complete
+      const uploadPromise = new Promise<void>((resolve, reject) => {
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve();
+            } else {
+              reject(new Error(`Upload failed with status: ${xhr.status}`));
+            }
+          }
+        };
+      });
+
+      // Open and send the request
+      xhr.open("PUT", uploadUrl);
+      xhr.setRequestHeader("Content-Type", file.type);
+      xhr.send(file);
+
+      // Wait for upload to complete
+      await uploadPromise;
 
       // Create a shortlink
       const shortlinkResponse = await fetch("/api/shortlink", {
@@ -120,10 +153,20 @@ export default function AudioUploader() {
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error ? err.message : "Upload failed");
-      if (retryCount < 3) {
-        setRetryCount((prev) => prev + 1);
-        handleUpload(); // Retry upload
-      }
+      // Use a functional update to get the latest retry count
+      setRetryCount((currentRetryCount) => {
+        // Check if we should retry
+        if (currentRetryCount < 3) {
+          // Schedule retry with the latest retry count
+          setTimeout(() => {
+            handleUpload(); // Retry upload with delay
+          }, 1000);
+          // Return incremented count
+          return currentRetryCount + 1;
+        }
+        // If we've reached max retries, just return the current count
+        return currentRetryCount;
+      });
     }
   };
 
@@ -185,7 +228,12 @@ export default function AudioUploader() {
         className={styles.uploadButton}
       >
         {status === "uploading" ? (
-          <span className={styles.uploadingIndicator}>Uploading...</span>
+          <span className={styles.uploadingIndicator}>
+            <FiLoader className={styles.spinnerIcon} />
+            {uploadProgress > 0
+              ? `Uploading... ${uploadProgress}%`
+              : "Uploading..."}
+          </span>
         ) : (
           "Upload to Cloud"
         )}
@@ -193,7 +241,10 @@ export default function AudioUploader() {
 
       {status === "uploading" && (
         <div className={styles.progressContainer}>
-          <div className={styles.progressBar} />
+          <div
+            className={styles.progressBar}
+            style={{ width: `${uploadProgress}%` }}
+          />
         </div>
       )}
 

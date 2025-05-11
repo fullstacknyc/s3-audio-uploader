@@ -135,15 +135,24 @@ export async function POST(req: Request) {
       userId || "anonymous"
     }/${Date.now()}-${encodeURIComponent(filename)}`;
 
+    // Define the S3 bucket
+    const bucketName = process.env.AWS_BUCKET_NAME;
+
     // Generate presigned upload URL (1 hour expiry)
+    const putObjectParams = {
+      Bucket: bucketName,
+      Key: s3Key,
+      ContentType: filetype,
+    };
+
     const uploadUrl = await getSignedUrl(
       s3,
-      new PutObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: s3Key,
-        ContentType: filetype,
-      }),
-      { expiresIn: 3600 }
+      new PutObjectCommand(putObjectParams),
+      {
+        expiresIn: 3600,
+        // Add additional query parameters if needed
+        unhoistableHeaders: new Set(["content-type", "content-length"]),
+      }
     );
 
     // Generate presigned download URL with expiry time based on user tier
@@ -152,7 +161,7 @@ export async function POST(req: Request) {
     const downloadUrl = await getSignedUrl(
       s3,
       new GetObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME,
+        Bucket: bucketName,
         Key: s3Key,
         ResponseContentDisposition: `attachment; filename="${encodeURIComponent(
           filename
@@ -170,7 +179,10 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("S3 Error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }
