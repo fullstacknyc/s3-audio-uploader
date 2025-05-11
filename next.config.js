@@ -41,9 +41,17 @@ const nextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value:
-              "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.google-analytics.com https://ssl.google-analytics.com https://www.googletagmanager.com https://cdn.jsdelivr.net https://pagead2.googlesyndication.com https://adservice.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://challenges.cloudflare.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://*.vercel.app https://challenges.cloudflare.com https://*.amazonaws.com; https://ep1.adtrafficquality.google; frame-src 'self' https://challenges.cloudflare.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com;",
-          },
+            value: `
+              default-src 'self';
+              script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com https://pagead2.googlesyndication.com https://adservice.google.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://challenges.cloudflare.com https://ep2.adtrafficquality.google;
+              style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://challenges.cloudflare.com;
+              img-src 'self' data: blob:;
+              font-src 'self' https://fonts.gstatic.com;
+              connect-src 'self' https://*.vercel.app https://www.google-analytics.com https://analytics.google.com https://challenges.cloudflare.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google;
+              frame-src 'self' https://challenges.cloudflare.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com;
+            `.replace(/\s{2,}/g, ' ').trim(),
+          }
+          ,
         ],
       },
     ];
