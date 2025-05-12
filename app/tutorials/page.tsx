@@ -9,6 +9,7 @@ import {
   getPopularTutorials,
   tutorialCategories,
 } from "@/lib/content/tutorials";
+import { getYouTubeThumbnail } from "@/lib/utils/tutorialUtils";
 
 export default function TutorialsPage() {
   const tutorials = getAllTutorials();
@@ -70,10 +71,19 @@ export default function TutorialsPage() {
               className={styles.featuredCard}
             >
               <div className={styles.thumbnailContainer}>
-                <div className={styles.thumbnail}>
-                  {/* Replace with actual thumbnail image */}
-                  <div className={styles.thumbnailPlaceholder}>
-                    <FiPlayCircle size={48} />
+                <div
+                  className={styles.thumbnail}
+                  style={{
+                    backgroundImage: `url(${getYouTubeThumbnail(
+                      tutorial,
+                      "medium"
+                    )})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                >
+                  <div className={styles.thumbnailOverlay}>
+                    <FiPlayCircle size={48} className={styles.playIcon} />
                   </div>
                 </div>
                 <span className={styles.duration}>{tutorial.duration}</span>
@@ -126,10 +136,19 @@ export default function TutorialsPage() {
               className={styles.tutorialCard}
             >
               <div className={styles.thumbnailContainer}>
-                <div className={styles.thumbnail}>
-                  {/* Replace with actual thumbnail image */}
-                  <div className={styles.thumbnailPlaceholder}>
-                    <FiPlayCircle size={32} />
+                <div
+                  className={styles.thumbnail}
+                  style={{
+                    backgroundImage: `url(${getYouTubeThumbnail(
+                      tutorial,
+                      "medium"
+                    )})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                >
+                  <div className={styles.thumbnailOverlay}>
+                    <FiPlayCircle size={32} className={styles.playIcon} />
                   </div>
                 </div>
                 <span className={styles.duration}>{tutorial.duration}</span>

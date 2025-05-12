@@ -13,6 +13,8 @@ import styles from "./tutorial-detail.module.css";
 import { getTutorialById, getAllTutorialIds } from "@/lib/content/tutorials";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import YouTubePlayer from "@/app/components/YouTubePlayer";
+import { getYouTubeThumbnail } from "@/lib/utils/tutorialUtils";
 
 // Static page with revalidation
 export const dynamic = "force-static";
@@ -43,6 +45,13 @@ export async function generateMetadata({
     };
   }
 
+  // Get the YouTube thumbnail URL if a videoId exists
+  // Try maxresdefault first for high quality, with hqdefault as a fallback
+  const thumbnailUrl = getYouTubeThumbnail(tutorial, "max");
+
+  // Prepare full image URLs
+  const imageUrl = thumbnailUrl ? new URL(thumbnailUrl).toString() : undefined;
+
   return {
     title: `${tutorial.title} - AudioCloud Tutorials`,
     description: tutorial.description,
@@ -50,6 +59,22 @@ export async function generateMetadata({
       title: tutorial.title,
       description: tutorial.description,
       type: "article",
+      images: imageUrl
+        ? [
+            {
+              url: imageUrl,
+              width: 1280,
+              height: 720,
+              alt: `Thumbnail for ${tutorial.title}`,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: tutorial.title,
+      description: tutorial.description,
+      images: imageUrl ? [imageUrl] : undefined,
     },
   };
 }
@@ -98,12 +123,8 @@ export default async function TutorialDetailPage({
         </div>
       </div>
 
-      <div className={styles.videoContainer}>
-        <div className={styles.videoPlaceholder}>
-          {/* In a real app, this would be an embedded video player */}
-          <div className={styles.playButton}>Play Video</div>
-        </div>
-      </div>
+      {/* Use the YouTube Player Component */}
+      <YouTubePlayer videoId={tutorial.videoId || ""} title={tutorial.title} />
 
       <div className={styles.contentWrapper}>
         <div className={styles.mainContent}>
@@ -155,8 +176,16 @@ export default async function TutorialDetailPage({
                     key={related.id}
                     className={styles.relatedItem}
                   >
-                    <div className={styles.relatedThumbnail}>
-                      {/* Placeholder for thumbnail */}
+                    <div
+                      className={styles.relatedThumbnail}
+                      style={{
+                        backgroundImage: `url(${getYouTubeThumbnail(
+                          tutorial,
+                          "medium"
+                        )})`,
+                      }}
+                    >
+                      {/* Thumbnail background */}
                     </div>
                     <div className={styles.relatedInfo}>
                       <h4>{related.title}</h4>
