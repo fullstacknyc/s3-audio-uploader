@@ -8,6 +8,10 @@ Disallow: /settings/
 Disallow: /files/
 Disallow: /.well-known/
 
+# Allow AdSense crawler
+User-agent: Mediapartners-Google
+Allow: /
+
 # Block specific bots that might flag content
 User-agent: MalwareBytes
 Allow: /about
