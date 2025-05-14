@@ -10,7 +10,7 @@ const tutorial: Tutorial = {
   thumbnail: "/tutorials/upload-tutorial.jpg",
   description:
     "Learn how to quickly upload and securely store your first audio file with AudioCloud.",
-  videoId: "abc123",
+  videoId: "9fpmPPeWjnY",
   popular: true,
   content: `
       <h2>Getting Started with AudioCloud</h2>
