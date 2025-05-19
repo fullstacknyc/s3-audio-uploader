@@ -23,8 +23,14 @@ export default function DisplayAd({
     const loadAd = () => {
       if (window.adsbygoogle && adRef.current && !hasInitialized.current) {
         try {
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-          hasInitialized.current = true;
+          // Check if the ad element already has ads loaded
+          const adElement = adRef.current;
+          const hasAds = adElement.getAttribute("data-adsbygoogle-status");
+
+          if (!hasAds) {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+            hasInitialized.current = true;
+          }
         } catch (error) {
           console.warn("Failed to load display ad:", error);
         }
