@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Script from "next/script";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { AuthProvider } from "@/lib/context/AuthContext";
+import AutoAds from "./components/AdSense/AutoAds";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,20 +40,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: 'any' },
+      { url: "/favicon.ico", sizes: "any" },
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
     ],
     apple: [
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
-    // other: [
-    //   {
-    //     rel: "mask-icon",
-    //     url: "/safari-pinned-tab.svg",
-    //     color: "#3b82f6", // Use your brand color
-    //   },
-    // ],
   },
   manifest: "/site.webmanifest",
   openGraph: {
@@ -77,7 +70,7 @@ export const metadata: Metadata = {
     description:
       "Upload, store, and share your audio files securely with AudioCloud.",
     images: ["/twitter-card.png"],
-    creator: "@fullstacknyc", // If applicable
+    creator: "@fullstacknyc",
   },
   appleWebApp: {
     title: "AudioCloud",
@@ -93,26 +86,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {/* Google AdSense */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2330891452848767"
-          crossOrigin="anonymous"
-        ></script>
+        {/* Google AdSense Auto Ads */}
+        {process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID && (
+          <AutoAds publisherId={process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID} />
+        )}
 
-        {/* Google Analytics */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-JJMFNDZXLC"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-JJMFNDZXLC'); // Replace with a valid ID
-          `}
-        </Script>
         <AuthProvider>
           <Navbar />
           {children}

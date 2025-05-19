@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import styles from "./AudioUploader.module.css";
 import {
   MAX_FILE_SIZE,
@@ -7,12 +7,8 @@ import {
   AUDIO_FORMAT_LABELS,
 } from "@/lib/constants/plans";
 import { formatBytes } from "@/lib/utils/formatUtils";
+import DisplayAd from "./AdSense/DisplayAd";
 
-declare global {
-  interface Window {
-    adsbygoogle: unknown[];
-  }
-}
 import {
   FiUpload,
   FiCheckCircle,
@@ -30,9 +26,7 @@ export default function AudioUploader() {
   >("idle");
   const [error, setError] = useState("");
   const [shortUrl, setShortUrl] = useState("");
-  const [isClient, setIsClient] = useState(false);
   const [, setRetryCount] = useState(0);
-  const [adCompleted, setAdCompleted] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleFileChange = useCallback(
@@ -139,7 +133,7 @@ export default function AudioUploader() {
           fileName: file.name,
           fileType: file.type,
           fileSize: file.size,
-          storageKey: storageKey, // Pass the storage key for future deletion
+          storageKey: storageKey,
         }),
       });
 
@@ -169,25 +163,6 @@ export default function AudioUploader() {
         return currentRetryCount;
       });
     }
-  };
-
-  useEffect(() => {
-    setIsClient(true);
-    if (typeof window !== "undefined" && window.adsbygoogle) {
-      const adElements = document.querySelectorAll(".adsbygoogle");
-      adElements.forEach((adElement) => {
-        if (!adElement.hasAttribute("data-adsbygoogle-status")) {
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-        }
-      });
-    }
-  }, []);
-
-  const handleAdInteraction = () => {
-    // Simulate ad interaction completion
-    setAdCompleted(true);
-    // Track ad interaction for analytics
-    console.log("Ad interaction completed");
   };
 
   const handleDownload = () => {
@@ -255,23 +230,7 @@ export default function AudioUploader() {
             <FiCheckCircle className={styles.successIcon} />
             <h3 className={styles.successTitle}>Upload Complete!</h3>
           </div>
-          <div className={styles.adSection}>
-            <p className={styles.adPrompt}>
-              Please interact with the ad below to unlock your download link:
-            </p>
-            <div className="adContainer">
-              {isClient && (
-                <ins
-                  style={{ display: "block" }}
-                  data-ad-client="ca-pub-XXXXXXXXXXXXXXX"
-                  data-ad-slot="1234567890"
-                  data-ad-format="auto"
-                  className="adsbygoogle"
-                  onClick={handleAdInteraction}
-                ></ins>
-              )}
-            </div>
-          </div>
+
           <div className={styles.downloadSection}>
             <p className={styles.downloadText}>
               Your file is ready to download:
@@ -289,7 +248,6 @@ export default function AudioUploader() {
                   alert("Link copied to clipboard!");
                 }}
                 className={styles.copyButton}
-                disabled={!adCompleted}
               >
                 <FiCopy />
               </button>
@@ -299,10 +257,16 @@ export default function AudioUploader() {
               Download Now
             </button>
           </div>
+
+          {/* Display ad after successful upload */}
+          {process.env.NEXT_PUBLIC_ADSENSE_DISPLAY_AD_SLOT && (
+            <DisplayAd
+              adSlot={process.env.NEXT_PUBLIC_ADSENSE_DISPLAY_AD_SLOT}
+              className="rectangle"
+            />
+          )}
         </div>
       )}
-
-      {status === "error" && <p className={styles.errorMessage}>{error}</p>}
 
       {error && (
         <div className={styles.errorCard}>
@@ -325,17 +289,13 @@ export default function AudioUploader() {
         </ul>
       </div>
 
-      <div className={styles.adContainer}>
-        {isClient && (
-          <ins
-            style={{ display: "block" }}
-            data-ad-client="ca-pub-XXXXXXXXXXXXXXX"
-            data-ad-slot="1234567890"
-            data-ad-format="auto"
-            className="adsbygoogle"
-          ></ins>
-        )}
-      </div>
+      {/* Display ad at the bottom of uploader */}
+      {process.env.NEXT_PUBLIC_ADSENSE_BANNER_AD_SLOT && (
+        <DisplayAd
+          adSlot={process.env.NEXT_PUBLIC_ADSENSE_BANNER_AD_SLOT}
+          className="banner"
+        />
+      )}
     </div>
   );
 }

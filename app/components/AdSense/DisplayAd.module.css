@@ -1,0 +1,65 @@
+.adContainer {
+  width: 100%;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.adContainer .adsbygoogle {
+  min-height: 50px;
+  background-color: var(--border);
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+
+.adContainer .adsbygoogle:empty {
+  background-color: transparent;
+}
+
+/* Ad container variants */
+.adContainer.banner {
+  max-width: 728px;
+  margin: 1rem auto;
+}
+
+.adContainer.rectangle {
+  max-width: 336px;
+  margin: 1rem auto;
+}
+
+.adContainer.leaderboard {
+  max-width: 728px;
+  margin: 1rem auto;
+}
+
+.adContainer.responsive {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .adContainer.banner,
+  .adContainer.leaderboard {
+    max-width: 320px;
+  }
+}
+
+/* Privacy-friendly styling */
+.adContainer::before {
+  content: "";
+  display: block;
+  height: 1px;
+  width: 50%;
+  background-color: var(--border);
+  margin: 1rem auto 0.5rem;
+  opacity: 0.3;
+}
+
+.adContainer::after {
+  content: "Advertisement";
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  opacity: 0.7;
+}

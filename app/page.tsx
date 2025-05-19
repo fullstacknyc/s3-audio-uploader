@@ -2,6 +2,7 @@
 "use client";
 
 import AudioUploader from "./components/AudioUploader";
+import DisplayAd from "./components/AdSense/DisplayAd";
 import { FiArrowRight, FiCheck, FiLock, FiCloud } from "react-icons/fi";
 import styles from "./page.module.css";
 import Link from "next/link";
@@ -33,7 +34,6 @@ export default function Home() {
         </div>
         <div className={styles.heroImage}>
           <div className={styles.imagePlaceholder}>
-            {/* Replace with actual image */}
             <Image
               src="/audio-wave.gif"
               alt="Audio Waveform"
@@ -45,6 +45,14 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      {/* LeaderBoard Ad - Top of page */}
+      {process.env.NEXT_PUBLIC_ADSENSE_LEADERBOARD_AD_SLOT && (
+        <DisplayAd
+          adSlot={process.env.NEXT_PUBLIC_ADSENSE_LEADERBOARD_AD_SLOT}
+          className="leaderboard"
+        />
+      )}
 
       {/* Features Section */}
       <section className={styles.featuresSection}>
@@ -82,6 +90,14 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Rectangle Ad - Between sections */}
+      {process.env.NEXT_PUBLIC_ADSENSE_RECTANGLE_AD_SLOT && (
+        <DisplayAd
+          adSlot={process.env.NEXT_PUBLIC_ADSENSE_RECTANGLE_AD_SLOT}
+          className="rectangle"
+        />
+      )}
 
       {/* About Section */}
       <section className={styles.aboutSection}>
@@ -126,6 +142,14 @@ export default function Home() {
           <AudioUploader />
         </div>
       </section>
+
+      {/* Banner Ad - Before testimonials */}
+      {process.env.NEXT_PUBLIC_ADSENSE_BANNER_AD_SLOT_2 && (
+        <DisplayAd
+          adSlot={process.env.NEXT_PUBLIC_ADSENSE_BANNER_AD_SLOT_2}
+          className="banner"
+        />
+      )}
 
       {/* Testimonials Section */}
       <section className={styles.testimonialsSection}>
