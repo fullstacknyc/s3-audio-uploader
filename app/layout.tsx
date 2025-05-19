@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     description:
       "Upload, store, and share your audio files securely with AudioCloud.",
     images: ["/twitter-card.png"],
-    creator: "@yourtwitterhandle", // If applicable
+    creator: "@fullstacknyc", // If applicable
   },
   appleWebApp: {
     title: "AudioCloud",
