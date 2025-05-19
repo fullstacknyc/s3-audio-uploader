@@ -9,41 +9,32 @@ interface AutoAdsProps {
 
 export default function AutoAds({ publisherId }: AutoAdsProps) {
   useEffect(() => {
-    // Initialize auto ads after the script loads
-    if (typeof window !== "undefined" && window.adsbygoogle) {
+    // Only initialize after the script has loaded
+    const initializeAds = () => {
       try {
-        // Push auto ads configuration
-        (window.adsbygoogle = window.adsbygoogle || []).push({
-        //   google_ad_client: publisherId,
-        //   enable_page_level_ads: true,
-        });
+        if (typeof window !== "undefined" && window.adsbygoogle) {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        }
       } catch (error) {
-        console.error("Error initializing auto ads:", error);
+        console.warn("AdSense auto ads initialization failed:", error);
       }
-    }
-  }, [publisherId]);
+    };
+
+    // Small delay to ensure script is fully loaded
+    const timer = setTimeout(initializeAds, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <>
-      {/* AdSense Auto Ads Script */}
-      <Script
-        id="adsense-auto-ads"
-        async
-        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publisherId}`}
-        crossOrigin="anonymous"
-        strategy="afterInteractive"
-        onLoad={() => {
-          // Enable auto ads after script loads
-          try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({
-            //   google_ad_client: publisherId,
-            //   enable_page_level_ads: true,
-            });
-          } catch (error) {
-            console.error("Error enabling auto ads:", error);
-          }
-        }}
-      />
-    </>
+    <Script
+      id="adsense-auto-ads"
+      async
+      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publisherId}`}
+      crossOrigin="anonymous"
+      strategy="afterInteractive"
+      onError={() => {
+        console.warn("Failed to load AdSense script");
+      }}
+    />
   );
 }

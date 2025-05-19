@@ -4,9 +4,8 @@ import { useEffect, useRef } from "react";
 import styles from "./DisplayAd.module.css";
 
 interface DisplayAdProps {
-  adSlot: string; // Your ad unit ID
+  adSlot: string;
   adFormat?: "auto" | "rectangle" | "banner" | "leaderboard";
-  adLayout?: string;
   style?: React.CSSProperties;
   className?: string;
 }
@@ -14,27 +13,41 @@ interface DisplayAdProps {
 export default function DisplayAd({
   adSlot,
   adFormat = "auto",
-  adLayout,
   style,
   className = "",
 }: DisplayAdProps) {
   const adRef = useRef<HTMLModElement>(null);
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.adsbygoogle && adRef.current) {
-      try {
-        // Check if the ad has already been pushed
-        if (!adRef.current.hasAttribute("data-adsbygoogle-status")) {
+    const loadAd = () => {
+      if (window.adsbygoogle && adRef.current && !hasInitialized.current) {
+        try {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
+          hasInitialized.current = true;
+        } catch (error) {
+          console.warn("Failed to load display ad:", error);
         }
-      } catch (error) {
-        console.error("Error loading display ad:", error);
       }
-    }
+    };
+
+    // Wait a bit for the AdSense script to be ready
+    const timer = setTimeout(loadAd, 100);
+
+    return () => {
+      clearTimeout(timer);
+      // Reset initialization flag on cleanup
+      hasInitialized.current = false;
+    };
   }, []);
 
+  // Don't render if we don't have the required props
+  if (!process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID || !adSlot) {
+    return null;
+  }
+
   return (
-    <div className={`${styles.adContainer} ${className}`}>
+    <div className={`${styles.adContainer} ${styles[className] || ""}`}>
       <ins
         ref={adRef}
         className="adsbygoogle"
@@ -45,7 +58,6 @@ export default function DisplayAd({
         data-ad-client={process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID}
         data-ad-slot={adSlot}
         data-ad-format={adFormat}
-        data-ad-layout={adLayout}
         data-full-width-responsive="true"
       />
     </div>
