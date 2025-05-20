@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useCallback } from "react";
 import styles from "./AudioUploader.module.css";
 import {
@@ -7,7 +8,9 @@ import {
   AUDIO_FORMAT_LABELS,
 } from "@/lib/constants/plans";
 import { formatBytes } from "@/lib/utils/formatUtils";
-import DisplayAd from "./AdSense/DisplayAd";
+import { getSupportedFormatLabels } from "@/lib/utils/audioFormatUtils";
+import AdUnit from "./Ads/AdUnit";
+import { useAds } from "@/lib/context/AdContext";
 
 import {
   FiUpload,
@@ -17,7 +20,6 @@ import {
   FiDownload,
   FiLoader,
 } from "react-icons/fi";
-import { getSupportedFormatLabels } from "@/lib/utils/audioFormatUtils";
 
 export default function AudioUploader() {
   const [file, setFile] = useState<File | null>(null);
@@ -28,6 +30,8 @@ export default function AudioUploader() {
   const [shortUrl, setShortUrl] = useState("");
   const [, setRetryCount] = useState(0);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const { publisherId, isAdBlockEnabled } = useAds();
+  const showAds = !!publisherId && !isAdBlockEnabled;
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -259,11 +263,13 @@ export default function AudioUploader() {
           </div>
 
           {/* Display ad after successful upload */}
-          {process.env.NEXT_PUBLIC_ADSENSE_DISPLAY_AD_SLOT && (
-            <DisplayAd
-              adSlot={process.env.NEXT_PUBLIC_ADSENSE_DISPLAY_AD_SLOT}
-              className="rectangle"
-            />
+          {showAds && (
+            <div className={styles.successAd}>
+              <AdUnit
+                adSlot={process.env.NEXT_PUBLIC_ADSENSE_MEDIUM_RECTANGLE_SLOT || ""}
+                size="medium-rectangle"
+              />
+            </div>
           )}
         </div>
       )}
@@ -290,11 +296,13 @@ export default function AudioUploader() {
       </div>
 
       {/* Display ad at the bottom of uploader */}
-      {process.env.NEXT_PUBLIC_ADSENSE_BANNER_AD_SLOT && (
-        <DisplayAd
-          adSlot={process.env.NEXT_PUBLIC_ADSENSE_BANNER_AD_SLOT}
-          className="banner"
-        />
+      {showAds && status !== "success" && (
+        <div className={styles.uploaderBottomAd}>
+          <AdUnit
+            adSlot={process.env.NEXT_PUBLIC_ADSENSE_BANNER_SLOT || ""}
+            size="banner"
+          />
+        </div>
       )}
     </div>
   );

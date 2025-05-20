@@ -4,7 +4,8 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { AuthProvider } from "@/lib/context/AuthContext";
-import AutoAds from "./components/AdSense/AutoAds";
+import { AdProvider } from "@/lib/context/AdContext";
+import AdScript from "./components/Ads/AdScript";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -86,15 +87,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {/* Google AdSense Auto Ads */}
-        {process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID && (
-          <AutoAds publisherId={process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID} />
-        )}
-
         <AuthProvider>
-          <Navbar />
-          {children}
-          <Footer />
+          <AdProvider>
+            <AdScript />
+            <Navbar />
+            {children}
+            <Footer />
+          </AdProvider>
         </AuthProvider>
       </body>
     </html>

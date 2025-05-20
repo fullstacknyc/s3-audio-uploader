@@ -2,13 +2,17 @@
 "use client";
 
 import AudioUploader from "./components/AudioUploader";
-import DisplayAd from "./components/AdSense/DisplayAd";
 import { FiArrowRight, FiCheck, FiLock, FiCloud } from "react-icons/fi";
 import styles from "./page.module.css";
 import Link from "next/link";
 import Image from "next/image";
+import AdUnit from "./components/Ads/AdUnit";
+import { useAds } from "@/lib/context/AdContext";
 
 export default function Home() {
+  const { publisherId, isAdBlockEnabled } = useAds();
+  const showAds = !!publisherId && !isAdBlockEnabled;
+
   return (
     <div className={styles.container}>
       {/* Hero Section */}
@@ -46,11 +50,11 @@ export default function Home() {
         </div>
       </header>
 
-      {/* LeaderBoard Ad - Top of page */}
-      {process.env.NEXT_PUBLIC_ADSENSE_LEADERBOARD_AD_SLOT && (
-        <DisplayAd
-          adSlot={process.env.NEXT_PUBLIC_ADSENSE_LEADERBOARD_AD_SLOT}
-          className="leaderboard"
+      {/* Top Leaderboard Ad */}
+      {showAds && (
+        <AdUnit
+          adSlot={process.env.NEXT_PUBLIC_ADSENSE_LEADERBOARD_SLOT || ""}
+          size="leaderboard"
         />
       )}
 
@@ -91,11 +95,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Rectangle Ad - Between sections */}
-      {process.env.NEXT_PUBLIC_ADSENSE_RECTANGLE_AD_SLOT && (
-        <DisplayAd
-          adSlot={process.env.NEXT_PUBLIC_ADSENSE_RECTANGLE_AD_SLOT}
-          className="rectangle"
+      {/* Rectangle Ad between sections */}
+      {showAds && (
+        <AdUnit
+          adSlot={process.env.NEXT_PUBLIC_ADSENSE_LARGE_RECTANGLE_SLOT || ""}
+          size="large-rectangle"
         />
       )}
 
@@ -143,11 +147,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Banner Ad - Before testimonials */}
-      {process.env.NEXT_PUBLIC_ADSENSE_BANNER_AD_SLOT_2 && (
-        <DisplayAd
-          adSlot={process.env.NEXT_PUBLIC_ADSENSE_BANNER_AD_SLOT_2}
-          className="banner"
+      {/* Banner Ad before testimonials */}
+      {showAds && (
+        <AdUnit
+          adSlot={process.env.NEXT_PUBLIC_ADSENSE_BANNER_SLOT || ""}
+          size="banner"
         />
       )}
 
@@ -177,6 +181,14 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Responsive Ad before CTA */}
+      {showAds && (
+        <AdUnit
+          adSlot={process.env.NEXT_PUBLIC_ADSENSE_RESPONSIVE_SLOT || ""}
+          size="responsive"
+        />
+      )}
 
       {/* CTA Section */}
       <section className={styles.ctaSection}>
