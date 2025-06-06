@@ -73,4 +73,4 @@ Pull requests welcome. For major changes, please open an issue first to discuss 
 
 ---
 
-Built with ❤️ by [fullstacknyc](https://github.com/fullstacknyc)
+Built with ❤️ by [fullstacknyc](https://github.com/fullstacknyc) & [zhen1007] (https://github.com/zhen1007)
