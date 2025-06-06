@@ -36,6 +36,7 @@ export default function Home() {
             </Link>
           </div>
         </div>
+        <br></br>
         <div className={styles.heroImage}>
           <div className={styles.imagePlaceholder}>
             <Image
