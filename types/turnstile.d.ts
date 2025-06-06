@@ -20,7 +20,7 @@ interface TurnstileOptions {
   cData?: string;
   callback?: (token: string) => void;
   "expired-callback"?: () => void;
-  "error-callback"?: (error: any) => void;
+  "error-callback"?: (error: unknown) => void;
   theme?: "light" | "dark" | "auto";
   tabindex?: number;
   appearance?: "always" | "execute" | "interaction-only";
