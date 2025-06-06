@@ -1,53 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AudioCloud - S3 Audio Uploader
 
-## Getting Started
+AudioCloud is a secure, high-quality audio file hosting platform designed for musicians, content creators, and audio professionals. Built with Next.js and AWS S3, it enables users to upload, store, and share audio without compromising quality.
 
-First, run the development server:
+## 🌐 Live Demo
+
+[Try it live](https://s3-audio-uploader.vercel.app)
+
+## 🚀 Features
+
+* 🔐 Secure audio storage with AWS S3
+* 🎵 No compression — preserves original file quality
+* 🔗 Shareable secure download links
+* 🧠 Ad unit integration with AdSense
+* 📱 Responsive design for mobile and desktop
+
+## 🛠️ Tech Stack
+
+* **Framework:** Next.js 13 (App Router)
+* **Storage:** AWS S3
+* **Styling:** CSS Modules
+* **UI:** React Icons, custom components
+* **Ads:** Google AdSense integration
+
+## 📦 Installation
+
+```bash
+git clone https://github.com/fullstacknyc/s3-audio-uploader.git
+cd s3-audio-uploader
+npm install
+```
+
+## ⚙️ Environment Variables
+
+Create a `.env.local` file and add the following:
+
+```env
+NEXT_PUBLIC_ADSENSE_CLIENT="your-adsense-client-id"
+NEXT_PUBLIC_ADSENSE_LEADERBOARD_SLOT="your-slot-id"
+NEXT_PUBLIC_ADSENSE_LARGE_RECTANGLE_SLOT="your-slot-id"
+NEXT_PUBLIC_ADSENSE_BANNER_SLOT="your-slot-id"
+NEXT_PUBLIC_ADSENSE_RESPONSIVE_SLOT="your-slot-id"
+AWS_REGION="your-region"
+AWS_ACCESS_KEY_ID="your-access-key"
+AWS_SECRET_ACCESS_KEY="your-secret-key"
+AWS_BUCKET_NAME="your-bucket"
+```
+
+## 🧪 Local Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📁 Project Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+app/
+  ├── components/
+  ├── page.tsx
+  ├── styles/
+  ├── lib/ (Ad Context, AWS utils)
+  └── public/
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧱 Contributions
 
-## S3 Configuration
+Pull requests welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-1. Create an S3 bucket in your AWS account.
-2. Enable CORS for the bucket with the following configuration:
-   ```json
-   {
-     "CORSRules": [
-       {
-         "AllowedOrigins": ["*"],
-         "AllowedMethods": ["PUT", "POST", "GET"],
-         "AllowedHeaders": ["*"]
-       }
-     ]
-   }
-   ```
-3. Set up an API endpoint (`/api/upload`) to generate presigned URLs for uploads.
+## 🪪 License
 
-## Learn More
+[MIT](LICENSE)
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built with ❤️ by [fullstacknyc](https://github.com/fullstacknyc)
